@@ -21,6 +21,9 @@ void setup() {
 
   // Green LEDs
   initRegister(GREEN_SHIFT_PIN, GREEN_STORE_PIN, GREEN_DATA_PIN);
+
+  // Blue LEDs
+  initRegister(BLUE_SHIFT_PIN,  BLUE_STORE_PIN, BLUE_DATA_PIN);
 }
 
 void loop() {

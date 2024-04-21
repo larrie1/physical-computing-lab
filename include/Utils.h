@@ -20,6 +20,7 @@ int randomButton();
 int randInRange(int min, int max);
 void initRegister(int shiftPin, int storePin, int dataPin);
 int readRegisterAt(int shiftPin, int dataPin, int index);
-void writeRegisterAt(int shiftPin, int storePin, int dataPin, int index);
+void writeRegisterAt(int shiftPin, int storePin, int dataPin, int index, int value);
+void toggleLightAt(Color color, int index);
 
 #endif

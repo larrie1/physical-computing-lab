@@ -18,7 +18,7 @@ GameMode Game::getMode() {
 }
 
 void Game::nextPlayer() {
-    if (activePlayer.getColor() == Color::RED) {
+    if (activePlayer.getColor() == player1.getColor()) {
         activePlayer = player2;
     } else {
         activePlayer = player1;
@@ -26,27 +26,22 @@ void Game::nextPlayer() {
 }
 
 void Game::nextGameMode() {
-    switch (mode) {
-    case GameMode::SINGLEPLAYER:
+    if (mode == GameMode::SINGLEPLAYER) {
         mode = GameMode::MULTIPLAYER;
-        break;
-    case GameMode::MULTIPLAYER:
+    } else if (mode == GameMode::MULTIPLAYER) {
         mode = GameMode::SINGLEPLAYER;
-        break;
-
-    default:
-        break;
     }
 }
 
 void Game::start() {
     if (!isCurrentlyActive) {
         isCurrentlyActive = true;
-        // TODO show countdown or 
+        // TODO show countdown
         // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I 
         // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I 
         // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I 
-        // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I 
+        // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I
+        toggleLightAt(activePlayer.getColor(), activeButton);
     }
 
     // end game
@@ -60,19 +55,25 @@ void Game::start() {
     }
 
     // check if button is pressed
-    if (readRegisterAt(BUTTON_SHIFT_PIN, BUTTON_DATA_PIN, activeButton) == 1) {
+    if (readRegisterAt(BUTTON_SHIFT_PIN, BUTTON_DATA_PIN, activeButton) == HIGH) {
         activePlayer.updateScore(1);
+        toggleLightAt(activePlayer.getColor(), activeButton);
         if (mode == GameMode::MULTIPLAYER) {
             nextPlayer();
         }
         activeButton = randomButton();
-    }
-
-    // activate light for active button
-    if (activePlayer.getColor() == Color::RED) {
-        writeRegisterAt(RED_SHIFT_PIN, RED_STORE_PIN, RED_DATA_PIN, activeButton);
-    } else if (activePlayer.getColor() == Color::GREEN) {
-        writeRegisterAt(GREEN_SHIFT_PIN, GREEN_STORE_PIN, GREEN_DATA_PIN, activeButton);
+    } else {
+        for (int i = 0; i < BUTTON_COUNT && i != activeButton; i++) {
+            // pressed wrong button
+            if (readRegisterAt(BUTTON_SHIFT_PIN, BUTTON_DATA_PIN, i) == HIGH) {
+                activePlayer.updateScore(-1);
+                toggleLightAt(activePlayer.getColor(), activeButton);
+                if (mode == GameMode::MULTIPLAYER) {
+                    nextPlayer();
+                }
+                activeButton = randomButton();
+            }
+        }
     }
 }
 

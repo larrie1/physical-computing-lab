@@ -41,15 +41,32 @@ int readRegisterAt(int shiftPin, int dataPin, int index) {
     return 0;
 }
 
-void writeRegisterAt(int shiftPin, int storePin, int dataPin, int index) {
+void writeRegisterAt(int shiftPin, int storePin, int dataPin, int index, int value) {
     for (int i = 0; i < BUTTON_COUNT; i++) {
         digitalWrite(shiftPin, LOW);
 
         if (i == index) {
-            digitalWrite(dataPin, HIGH);
+            digitalWrite(dataPin, value);
         }
 
         digitalWrite(shiftPin, HIGH);
     }
     digitalWrite(storePin, HIGH);
+}
+
+void toggleLightAt(Color color, int index) {
+    switch (color) {
+    case Color::RED:
+        writeRegisterAt(RED_SHIFT_PIN, RED_STORE_PIN, RED_DATA_PIN, index);
+        break;
+    case Color::GREEN:
+        writeRegisterAt(GREEN_SHIFT_PIN, GREEN_STORE_PIN, GREEN_DATA_PIN, index);
+        break;
+    case Color::BLUE:
+        writeRegisterAt(BLUE_SHIFT_PIN, BLUE_STORE_PIN, BLUE_DATA_PIN, index);
+        break;
+    
+    default:
+        break;
+    }
 }
