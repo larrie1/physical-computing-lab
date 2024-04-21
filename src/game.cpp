@@ -1,14 +1,12 @@
 #include <Game.h>
-#include <Utils.h>
-
-Player player1 = Player(Color::RED);
-Player player2 = Player(Color::GREEN);
 
 Game::Game() {
     isCurrentlyActive = false;
+    player1 = Player(Color::RED);
+    player2 = Player(Color::GREEN);
     activePlayer = player1;
     mode = GameMode::SINGLEPLAYER;
-    activeButton = random();
+    activeButton = randomButton();
 }
 
 bool Game::isActive() {
@@ -20,7 +18,7 @@ GameMode Game::getMode() {
 }
 
 void Game::nextPlayer() {
-    if (activePlayer == player1) {
+    if (activePlayer.getColor() == Color::RED) {
         activePlayer = player2;
     } else {
         activePlayer = player1;
@@ -43,8 +41,22 @@ void Game::nextGameMode() {
 
 void Game::start() {
     if (!isCurrentlyActive) {
-        isCurrentlyActive = true
-        // TODO show countdown
+        isCurrentlyActive = true;
+        // TODO show countdown or 
+        // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I 
+        // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I 
+        // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I 
+        // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I 
+    }
+
+    // end game
+    if (activePlayer.getTime() == 0) {
+        isCurrentlyActive = false;
+        player1.reset();
+        player2.reset();
+        activePlayer = player1;
+
+        // TODO show animation
     }
 
     // check if button is pressed
@@ -53,7 +65,7 @@ void Game::start() {
         if (mode == GameMode::MULTIPLAYER) {
             nextPlayer();
         }
-        activeButton = random();
+        activeButton = randomButton();
     }
 
     // activate light for active button
@@ -64,7 +76,12 @@ void Game::start() {
     }
 }
 
-// TODO stop timer and show it on the board
 void Game::pause() {
+    activePlayer.pauseTime();
 
+    // TODO show pause icon
+    // 0 0 0 0
+    // I 0 0 I
+    // I 0 0 I
+    // 0 0 0 0
 }

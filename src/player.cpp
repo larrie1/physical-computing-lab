@@ -2,8 +2,14 @@
 
 Player::Player(Color color) {
     score = 0;
-    color = color;
-    time_left = 300000; // 5min in ms
+    this->color = color;
+    time_left = 300000L; // 5min in ms
+}
+
+Player::Player() {
+    score = 0;
+    this->color = Color::RED;
+    time_left = 300000L; // 5min in ms
 }
 
 Color Player::getColor() {
@@ -16,6 +22,10 @@ void Player::updateScore(int value) {
 
 int Player::getTime() {
     return time_left;
+}
+
+void Player::pauseTime() {
+
 }
 
 void Player::reset() {

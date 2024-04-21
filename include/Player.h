@@ -6,22 +6,21 @@
 #ifndef Player_h
 #define Player_h
 
-enum class Color {
-  RED,
-  GREEN
-};
+#include <Utils.h>
 
 class Player {
   public:
     Player(Color color);
+    Player();
     Color getColor();
     void updateScore(int value);
     int getTime();
     void reset();
+    void pauseTime();
 
   private:
     int score;
-    int time_left;
+    long time_left;
     Color color;
 };
 

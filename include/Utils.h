@@ -6,7 +6,17 @@
 #ifndef Utils_h
 #define Utils_h
 
-int random();
+#include <Arduino.h>
+
+#define BUTTON_COUNT 16
+
+enum class Color {
+  RED,
+  GREEN,
+  BLUE
+};
+
+int randomButton();
 int randInRange(int min, int max);
 void initRegister(int shiftPin, int storePin, int dataPin);
 int readRegisterAt(int shiftPin, int dataPin, int index);

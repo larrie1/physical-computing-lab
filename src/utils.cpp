@@ -1,16 +1,10 @@
 #include <Utils.h>
 
 int randInRange(int min, int max) {
-   static bool first = true;
-   if (first) 
-   {  
-      srand( time(NULL) );
-      first = false;
-   }
    return min + rand() % (( max + 1 ) - min);
 }
 
-int random() {
+int randomButton() {
     return randInRange(0, 16);
 }
 
@@ -31,7 +25,7 @@ void initRegister(int shiftPin, int storePin, int dataPin) {
   }
 
   // write whole register to output
-  digitalWrite(storePin, HIGH)
+  digitalWrite(storePin, HIGH);
 }
 
 int readRegisterAt(int shiftPin, int dataPin, int index) {
@@ -57,5 +51,5 @@ void writeRegisterAt(int shiftPin, int storePin, int dataPin, int index) {
 
         digitalWrite(shiftPin, HIGH);
     }
-    digitalWrite(storePin, HIGH)
+    digitalWrite(storePin, HIGH);
 }

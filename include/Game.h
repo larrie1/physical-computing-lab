@@ -7,6 +7,7 @@
 #define GameLogic_h
 
 #include <Player.h>
+#include <Utils.h>
 
 /** Constans **/
 #define START_BUTTON_PIN  1
@@ -53,8 +54,9 @@ class Game {
   private:
     GameMode mode;
     bool isCurrentlyActive;
-    Player players[2];
     Player activePlayer;
+    Player player1;
+    Player player2;
     int activeButton;
 };
 
