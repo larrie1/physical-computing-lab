@@ -13,10 +13,6 @@ bool Game::isActive() {
     return isCurrentlyActive;
 }
 
-GameMode Game::getMode() {
-    return mode;
-}
-
 void Game::nextPlayer() {
     if (activePlayer.getColor() == player1.getColor()) {
         activePlayer = player2;
@@ -31,6 +27,15 @@ void Game::nextGameMode() {
     } else if (mode == GameMode::MULTIPLAYER) {
         mode = GameMode::SINGLEPLAYER;
     }
+}
+
+void Game::onButtonPress(bool correct) {
+    activePlayer.updateScore(correct ? 1 : -1);
+    toggleLightAt(activePlayer.getColor(), activeButton);
+    if (mode == GameMode::MULTIPLAYER) {
+        nextPlayer();
+    }
+    activeButton = randomButton();
 }
 
 void Game::start() {
@@ -56,22 +61,12 @@ void Game::start() {
 
     // check if button is pressed
     if (readRegisterAt(BUTTON_SHIFT_PIN, BUTTON_DATA_PIN, activeButton) == HIGH) {
-        activePlayer.updateScore(1);
-        toggleLightAt(activePlayer.getColor(), activeButton);
-        if (mode == GameMode::MULTIPLAYER) {
-            nextPlayer();
-        }
-        activeButton = randomButton();
+        onButtonPress(true)
     } else {
         for (int i = 0; i < BUTTON_COUNT && i != activeButton; i++) {
             // pressed wrong button
             if (readRegisterAt(BUTTON_SHIFT_PIN, BUTTON_DATA_PIN, i) == HIGH) {
-                activePlayer.updateScore(-1);
-                toggleLightAt(activePlayer.getColor(), activeButton);
-                if (mode == GameMode::MULTIPLAYER) {
-                    nextPlayer();
-                }
-                activeButton = randomButton();
+                onButtonPress(false)
             }
         }
     }
@@ -81,8 +76,8 @@ void Game::pause() {
     activePlayer.pauseTime();
 
     // TODO show pause icon
-    // 0 0 0 0
     // I 0 0 I
     // I 0 0 I
-    // 0 0 0 0
+    // I 0 0 I
+    // I 0 0 I
 }

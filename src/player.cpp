@@ -25,7 +25,7 @@ int Player::getTime() {
 }
 
 void Player::pauseTime() {
-
+    
 }
 
 void Player::reset() {

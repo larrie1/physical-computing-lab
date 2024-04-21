@@ -48,8 +48,6 @@ class Game {
     void start();
     void pause();
     bool isActive();
-    GameMode getMode();
-    void nextPlayer();
 
   private:
     GameMode mode;
@@ -58,6 +56,8 @@ class Game {
     Player player1;
     Player player2;
     int activeButton;
+    void Game::onButtonPress(bool correct);
+    void nextPlayer();
 };
 
 #endif
