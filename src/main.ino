@@ -1,19 +1,16 @@
 #include <Game.h>
 #include <Arduino.h>
-#include <Matrix.h>
 
 Game game = Game();
-Matrix matrix = Matrix();
 
 void setup() {
-  matrix.addLeds();
   // Start Button
-  // pinMode(START_BUTTON_PIN, INPUT);
-  // digitalWrite(START_BUTTON_PIN, LOW);
+  pinMode(START_BUTTON_PIN, INPUT);
+  digitalWrite(START_BUTTON_PIN, LOW);
 
   // Mode Button
-  //pinMode(MODE_BUTTON_PIN, INPUT);
-  //digitalWrite(MODE_BUTTON_PIN, LOW);
+  pinMode(MODE_BUTTON_PIN, INPUT);
+  digitalWrite(MODE_BUTTON_PIN, LOW);
 }
 
 void loop() {

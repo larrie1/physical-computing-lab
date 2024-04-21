@@ -1,5 +1,5 @@
 /*
-  GameLogic.h - Library for handling the game logic.
+  Game.h - Library for handling the game.
   Created by GridGurus, April to July, 2024.
   Developed for Physical Computing Lab at Leibniz University Hanover.
 */
