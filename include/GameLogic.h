@@ -10,9 +10,9 @@
 #define LED_PIN 13
 
 // Declarations
-class Game {
+class GameLogic {
   public:
-    Game();
+    GameLogic();
     void selectGameMode();
     void start();
 };

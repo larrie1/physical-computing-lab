@@ -1,13 +1,13 @@
 #include <GameLogic.h>
 
-Game::Game() {
+GameLogic::GameLogic() {
 
 }
 
-void Game::selectGameMode() {
+void GameLogic::selectGameMode() {
 
 }
 
-void Game::start() {
+void GameLogic::start() {
     
 }
