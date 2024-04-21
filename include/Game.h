@@ -6,9 +6,12 @@
 #ifndef GameLogic_h
 #define GameLogic_h
 
+#include <Player.h>
+
 /** Constans **/
 #define START_BUTTON_PIN  1
 #define MODE_BUTTON_PIN 2
+#define BUTTON_COUNT 16
 
 // Buttons
 #define BUTTON_SHIFT_PIN 3
@@ -43,10 +46,16 @@ class Game {
     void nextGameMode();
     void start();
     void pause();
-    bool isCurrentlyActive;
+    bool isActive();
+    GameMode getMode();
+    void nextPlayer();
+
   private:
-    int mode;
-    GameMode modes[2];
+    GameMode mode;
+    bool isCurrentlyActive;
+    Player players[2];
+    Player activePlayer;
+    int activeButton;
 };
 
 #endif

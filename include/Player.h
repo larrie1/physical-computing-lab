@@ -6,15 +6,23 @@
 #ifndef Player_h
 #define Player_h
 
+enum class Color {
+  RED,
+  GREEN
+};
+
 class Player {
   public:
-    Player();
+    Player(Color color);
+    Color getColor();
     void updateScore(int value);
     int getTime();
+    void reset();
 
   private:
     int score;
     int time_left;
+    Color color;
 };
 
 #endif
