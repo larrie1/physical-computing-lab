@@ -1,10 +1,18 @@
 #include <Game.h>
+#include <WhackAMole.h>
+#include <Remember.h>
 #include <Arduino.h>
 #include <Utils.h>
 
-Game game = Game();
+Game *games[GAMES];
+int gameIndex = 0;
 
 void setup() {
+  // add games
+  games[0] = new WhackAMole(GameMode::SINGLEPLAYER);
+  games[1] = new WhackAMole(GameMode::MULTIPLAYER);
+  games[2] = new Remember();
+
   // Start Button
   pinMode(START_BUTTON_PIN, INPUT);
   digitalWrite(START_BUTTON_PIN, LOW);
@@ -28,14 +36,14 @@ void setup() {
 
 void loop() {
   // Mode Selection
-  if (digitalRead(MODE_BUTTON_PIN) == HIGH && !game.isActive()) {
-    game.nextGameMode();
+  if (digitalRead(MODE_BUTTON_PIN) == HIGH && !games[gameIndex]->isActive()) {
+    gameIndex++;
   }
 
   // Start/Pause Game
   if (digitalRead(START_BUTTON_PIN) == HIGH) {
-    game.start();
+    games[gameIndex]->start();
   } else {
-    game.pause();
+    games[gameIndex]->pause();
   }
 }

@@ -53,20 +53,3 @@ void writeRegisterAt(int shiftPin, int storePin, int dataPin, int index, int val
     }
     digitalWrite(storePin, HIGH);
 }
-
-void toggleLightAt(Color color, int index) {
-    switch (color) {
-    case Color::RED:
-        writeRegisterAt(RED_SHIFT_PIN, RED_STORE_PIN, RED_DATA_PIN, index);
-        break;
-    case Color::GREEN:
-        writeRegisterAt(GREEN_SHIFT_PIN, GREEN_STORE_PIN, GREEN_DATA_PIN, index);
-        break;
-    case Color::BLUE:
-        writeRegisterAt(BLUE_SHIFT_PIN, BLUE_STORE_PIN, BLUE_DATA_PIN, index);
-        break;
-    
-    default:
-        break;
-    }
-}

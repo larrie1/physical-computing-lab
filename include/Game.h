@@ -3,13 +3,17 @@
   Created by GridGurus, April to July, 2024.
   Developed for Physical Computing Lab at Leibniz University Hanover.
 */
-#ifndef GameLogic_h
-#define GameLogic_h
+#ifndef Game_h
+#define Game_h
 
 #include <Player.h>
 #include <Utils.h>
+#include <Stopwatch.h>
 
-/** Constans **/
+#define MAX_PLAYER 2
+#define GAMES 2
+
+/** Constants **/
 #define START_BUTTON_PIN  1
 #define MODE_BUTTON_PIN 2
 #define BUTTON_COUNT 16
@@ -34,7 +38,6 @@
 #define BLUE_STORE_PIN 13
 #define BLUE_DATA_PIN 14
 
-
 enum class GameMode {
     SINGLEPLAYER,
     MULTIPLAYER
@@ -43,21 +46,20 @@ enum class GameMode {
 // Declarations
 class Game {
   public:
-    Game();
-    void nextGameMode();
-    void start();
-    void pause();
     bool isActive();
+    virtual void start();
+    void pause();
+
+  protected:
+    Player getActivePlayer();
+    void nextPlayer();
+    void toggleLightAt(Color color, int index, int value);
+    void reset();
 
   private:
-    GameMode mode;
-    bool isCurrentlyActive;
-    Player activePlayer;
-    Player player1;
-    Player player2;
-    int activeButton;
-    void Game::onButtonPress(bool correct);
-    void nextPlayer();
+    bool isCurrentlyActive = false;
+    Player players[MAX_PLAYER] = {Player(Color::RED), Player(Color::GREEN)};
+    Player activePlayer = players[0];
 };
 
 #endif

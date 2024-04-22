@@ -1,75 +1,64 @@
 #include <Game.h>
 
-Game::Game() {
-    isCurrentlyActive = false;
-    player1 = Player(Color::RED);
-    player2 = Player(Color::GREEN);
-    activePlayer = player1;
-    mode = GameMode::SINGLEPLAYER;
-    activeButton = randomButton();
-}
-
 bool Game::isActive() {
     return isCurrentlyActive;
 }
 
+Player Game::getActivePlayer() {
+    return activePlayer;
+}
+
 void Game::nextPlayer() {
-    if (activePlayer.getColor() == player1.getColor()) {
-        activePlayer = player2;
+    if (activePlayer.getColor() == players[0].getColor()) {
+        activePlayer = players[1];
     } else {
-        activePlayer = player1;
+        activePlayer = players[0];
     }
 }
 
-void Game::nextGameMode() {
-    if (mode == GameMode::SINGLEPLAYER) {
-        mode = GameMode::MULTIPLAYER;
-    } else if (mode == GameMode::MULTIPLAYER) {
-        mode = GameMode::SINGLEPLAYER;
+void Game::reset() {
+    isCurrentlyActive = false;
+    for (int i = 0; i < MAX_PLAYER; i++) {
+        players[i].reset();
     }
 }
 
-void Game::onButtonPress(bool correct) {
-    activePlayer.updateScore(correct ? 1 : -1);
-    toggleLightAt(activePlayer.getColor(), activeButton);
-    if (mode == GameMode::MULTIPLAYER) {
-        nextPlayer();
+void Game::toggleLightAt(Color color, int index, int value) {
+    switch (color) {
+        case Color::RED:
+            writeRegisterAt(RED_SHIFT_PIN, RED_STORE_PIN, RED_DATA_PIN, index, value);
+            break;
+        case Color::GREEN:
+            writeRegisterAt(GREEN_SHIFT_PIN, GREEN_STORE_PIN, GREEN_DATA_PIN, index, value);
+            break;
+        case Color::BLUE:
+            writeRegisterAt(BLUE_SHIFT_PIN, BLUE_STORE_PIN, BLUE_DATA_PIN, index, value);
+            break;
+        
+        default:
+            break;
     }
-    activeButton = randomButton();
 }
 
 void Game::start() {
     if (!isCurrentlyActive) {
         isCurrentlyActive = true;
+        activePlayer.startMove();
         // TODO show countdown
-        // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I 
-        // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I 
-        // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I 
         // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I
-        toggleLightAt(activePlayer.getColor(), activeButton);
+        // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I
+        // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I
+        // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I
     }
 
     // end game
-    if (activePlayer.getTime() == 0) {
-        isCurrentlyActive = false;
-        player1.reset();
-        player2.reset();
-        activePlayer = player1;
+    if (activePlayer.getTime() <= 0) {
+        // TODO show score on display
+
+        reset();
 
         // TODO show animation
-    }
-
-    // check if button is pressed
-    if (readRegisterAt(BUTTON_SHIFT_PIN, BUTTON_DATA_PIN, activeButton) == HIGH) {
-        onButtonPress(true)
-    } else {
-        for (int i = 0; i < BUTTON_COUNT && i != activeButton; i++) {
-            // pressed wrong button
-            if (readRegisterAt(BUTTON_SHIFT_PIN, BUTTON_DATA_PIN, i) == HIGH) {
-                onButtonPress(false)
-            }
-        }
-    }
+    }    
 }
 
 void Game::pause() {

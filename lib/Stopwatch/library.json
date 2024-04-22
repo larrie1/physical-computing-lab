@@ -1,0 +1,7 @@
+{
+    "name": "Stopwatch",
+    "description": "Stopwatch is a library for handling the time.",
+    "version": "1.0.0",
+    "platforms": "atmelavr, atmelsam, freescalekinetis, nordicnrf51, nxplpc, ststm32, teensy, espressif8266, espressif32, nordicnrf52",
+    "headers": "Stopwatch.h"
+}

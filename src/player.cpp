@@ -1,19 +1,19 @@
 #include <Player.h>
 
 Player::Player(Color color) {
-    score = 0;
     this->color = color;
-    time_left = 300000L; // 5min in ms
-}
-
-Player::Player() {
-    score = 0;
-    this->color = Color::RED;
-    time_left = 300000L; // 5min in ms
 }
 
 Color Player::getColor() {
     return color;
+}
+
+void Player::stopMove() {
+    watch.stop();
+}
+
+void Player::startMove() {
+    watch.start();
 }
 
 void Player::updateScore(int value) {
@@ -21,7 +21,12 @@ void Player::updateScore(int value) {
 }
 
 int Player::getTime() {
-    return time_left;
+    timeLeft -= watch.elapsedMilliseconds();
+    if (timeLeft <= 0) {
+        watch.stop();
+        timeLeft = 0;
+    }
+    return timeLeft;
 }
 
 void Player::pauseTime() {
@@ -30,5 +35,5 @@ void Player::pauseTime() {
 
 void Player::reset() {
     score = 0;
-    time_left = 300000;
+    timeLeft = 300000;
 }
