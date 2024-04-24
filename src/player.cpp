@@ -36,4 +36,5 @@ void Player::pauseTime() {
 void Player::reset() {
     score = 0;
     timeLeft = 300000;
+    stopMove();
 }

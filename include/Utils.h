@@ -8,8 +8,6 @@
 
 #include <Arduino.h>
 
-#define BUTTON_COUNT 16
-
 enum class Color {
   RED,
   GREEN,
@@ -18,8 +16,14 @@ enum class Color {
 
 int randomButton();
 int randInRange(int min, int max);
-void initRegister(int shiftPin, int storePin, int dataPin);
-int readRegisterAt(int shiftPin, int dataPin, int index);
-void writeRegisterAt(int shiftPin, int storePin, int dataPin, int index, int value);
+int* randomButtonList(int size);
+void initRegister(int clockPin, int latchPin, int dataPin);
+int readRegisterAt(int clockPin, int dataPin, int index);
+void writeRegisterAt(int clockPin, int latchPin, int dataPin, int index, int value);
+long readButtons(int loadPin, int clockPin, int clockEnablePin, int dataPin);
+void writeToLed(int clockPin, int latchPin, int dataPin, long data);
+void resetLed(int clockPin, int latchPin, int dataPin);
+long randomBits(int length);
+long *randomBitsList(int length);
 
 #endif

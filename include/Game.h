@@ -11,7 +11,8 @@
 #include <Stopwatch.h>
 
 #define MAX_PLAYER 2
-#define GAMES 2
+#define GAMES 3 // WhackAMole Singleplayer, WhackAMole Multiplayer, Remember
+#define BUTTON_COUNT 16
 
 /** Constants **/
 #define START_BUTTON_PIN  1
@@ -19,23 +20,24 @@
 #define BUTTON_COUNT 16
 
 // Buttons
-#define BUTTON_SHIFT_PIN 3
-#define BUTTON_STORE_PIN 4
-#define BUTTON_DATA_PIN 5
+#define BUTTON_LOAD_PIN 1
+#define BUTTON_CLOCK_ENABLE_PIN 2
+#define BUTTON_DATA_PIN 3
+#define BUTTON_CLOCK_PIN 4
 
 // Red LEDs
-#define RED_SHIFT_PIN 6
-#define RED_STORE_PIN 7
+#define RED_CLOCK_PIN 6
+#define RED_LATCH_PIN 7
 #define RED_DATA_PIN 8
 
 // Green LEDs
-#define GREEN_SHIFT_PIN 9
-#define GREEN_STORE_PIN 10
+#define GREEN_CLOCK_PIN 9
+#define GREEN_LATCH_PIN 10
 #define GREEN_DATA_PIN 11
 
 // Blue LEDs
-#define BLUE_SHIFT_PIN 12
-#define BLUE_STORE_PIN 13
+#define BLUE_CLOCK_PIN 12
+#define BLUE_LATCH_PIN 13
 #define BLUE_DATA_PIN 14
 
 enum class GameMode {
@@ -54,7 +56,9 @@ class Game {
     Player getActivePlayer();
     void nextPlayer();
     void toggleLightAt(Color color, int index, int value);
-    void reset();
+    virtual void reset();
+    void setLedPattern(Color color, long pattern);
+    void resetLeds();
 
   private:
     bool isCurrentlyActive = false;

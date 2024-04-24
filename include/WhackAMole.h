@@ -1,5 +1,5 @@
 /*
-  Utils.h - Library for handling the gamemode WhackAMole.
+  WhackAMole.h - Library for handling the game WhackAMole.
   Created by GridGurus, April to July, 2024.
   Developed for Physical Computing Lab at Leibniz University Hanover.
 */
@@ -10,13 +10,16 @@
 
 class WhackAMole : public Game {
     public:
-        WhackAMole(GameMode mode = GameMode::SINGLEPLAYER);
+        WhackAMole(GameMode mode = GameMode::SINGLEPLAYER, int activeButtonsSize = 1);
         void start() override;
     
     private:
-        int activeButton = randomButton();
+        int activeButtonsSize;
+        long* activeButtons;
         GameMode mode;
         void onButtonPress(bool correct);
+        void isButtonPressed(long activeButton);
+        void setActive();
 };
 
 #endif
