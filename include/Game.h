@@ -9,9 +9,14 @@
 #include <Player.h>
 #include <Utils.h>
 #include <Stopwatch.h>
+#include <ShiftIn.h>
+#include <RgbMatrix.h>
+#include <Arduino-List.hpp>
 
 #define MAX_PLAYER 2
 #define GAMES 3 // WhackAMole Singleplayer, WhackAMole Multiplayer, Remember
+#define DIMENSION 4
+#define REGISTER_COUNT 2
 #define BUTTON_COUNT 16
 
 /** Constants **/
@@ -26,39 +31,45 @@
 #define BUTTON_CLOCK_PIN 4
 
 // Red LEDs
-#define RED_CLOCK_PIN 6
 #define RED_LATCH_PIN 7
 #define RED_DATA_PIN 8
 
 // Green LEDs
-#define GREEN_CLOCK_PIN 9
 #define GREEN_LATCH_PIN 10
 #define GREEN_DATA_PIN 11
 
 // Blue LEDs
-#define BLUE_CLOCK_PIN 12
 #define BLUE_LATCH_PIN 13
 #define BLUE_DATA_PIN 14
+
+// Clock
+#define CLOCK_PIN 6
 
 enum class GameMode {
     SINGLEPLAYER,
     MULTIPLAYER
 };
 
-// Declarations
 class Game {
   public:
+    Game() : matrix(RgbMatrix<DIMENSION>), shift(ShiftIn<REGISTER_COUNT>) {}
+
     bool isActive();
-    virtual void start();
+    void begin():
     void pause();
 
+    virtual void start();
+
   protected:
+    RgbMatrix matrix;
+    ShiftIn shift;
     Player getActivePlayer();
+
     void nextPlayer();
     void toggleLightAt(Color color, int index, int value);
-    virtual void reset();
     void setLedPattern(Color color, long pattern);
-    void resetLeds();
+
+    virtual void reset();
 
   private:
     bool isCurrentlyActive = false;

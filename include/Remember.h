@@ -7,11 +7,9 @@
 #define Remember_h
 
 #include <Game.h>
-#include <Stopwatch.h>
-#include <Utils.h>
 
-#define MINIMUM_PATTERN_SIZE 3
-#define MAXIMUM_PATTERN_SIZE 50
+#define WRONG_PRESSES_THRESHHOLD 1
+#define SHOW_TIME 1000
 
 enum class RememberState {
     SHOWING,
@@ -20,15 +18,79 @@ enum class RememberState {
 
 class Remember : public Game {
     public:
-        void start() override;
+        void start() override {
+            // start player move and player time
+            Game::start();
+
+            if (state == RememberState::SHOWING) {
+                // stop player watch
+                Game::getActivePlayer().stopMove();
+                // show button pattern
+                showLevel();
+                // start player watch
+                Game::getActivePlayer().startMove();
+            } 
+
+            if (state == RememberState::REMEMBER) {
+                // check if button is pressed
+                if (Game::shift.update()) {
+                    onButtonPress();
+                }
+            }
+        }
 
     private:
+        List<int> buttons;
+        int level = 1;
+        int wrongPressed = 0;
         RememberState state = RememberState::SHOWING;
-        int patternSize = MINIMUM_PATTERN_SIZE;
-        int pattern[MAXIMUM_PATTERN_SIZE];
-        int rememberIndex = 0;
-        void reset() override;
-        void showPattern();
+        GameMode mode = GameMode::SINGLEPLAYER;
+
+        void showLevel() {
+            for (int i = 0; i < level; i++) {
+                int index = rand() % (BUTTON_COUNT - 1);
+                activeButtons.add(index);
+
+                Game::matrix.set(Game::getActivePlayer().getColor(), index, HIGH);
+                Game::matrix.write(Game::getActivePlayer().getColor());
+                delay(SHOW_TIME);
+                Game::matrix.setAllLow();
+                Game::matrix.write(Game::getActivePlayer().getColor());
+            }
+            // next state 
+            state = RememberState::REMEMBER;
+        }
+
+        void onButtonPress() {
+            if (Game::shift.pressed(buttons[buttons.getSize() - 1])) {
+                wrongPressed = 0;
+                // turn led green
+                Game::matrix.flashWrite(Color::GREEN, SHOW_TIME, buttons[buttons.getSize() - 1])
+
+                buttons.removeLast();
+            } else {
+                wrongPressed++;
+                Game::getActivePlayer().updateScore(-1);
+                if (wrongPressed > WRONG_PRESSES_THRESHHOLD) {
+                    Game::reset();
+                    // TODO next player or next player won
+                }
+            }
+
+            if (buttons.getSize() == 0) {
+                // flash all leds green
+                Game::matrix.flashWrite(Color::GREEN, SHOW_TIME)
+
+                level++;
+                Game::getActivePlayer().updateScore(1);
+
+                if (mode == GameMode::MULTIPLAYER) {
+                    Game::nextPlayer();
+                }
+
+                state = RememberState::SHOWING;
+            }
+        }
 };
 
 #endif

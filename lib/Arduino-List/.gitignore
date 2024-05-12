@@ -1,0 +1,23 @@
+# Jetbrains IDEs
+**/.idea/**
+
+# CMake
+**/cmake-build-*
+
+# gh_pages files
+doxygen_sqlite3.db
+html
+
+# VSCode
+**/.vscode/settings.json
+
+# PlatformIO
+.pio
+lib
+src/main.cpp
+include
+platformio.ini
+CMakeListsPrivate.txt
+
+# macOS
+**/.DS_Store
