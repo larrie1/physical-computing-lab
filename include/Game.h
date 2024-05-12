@@ -7,11 +7,10 @@
 #define Game_h
 
 #include <Player.h>
-#include <Utils.h>
 #include <Stopwatch.h>
 #include <ShiftIn.h>
 #include <RgbMatrix.h>
-#include <Arduino-List.hpp>
+#include <List.hpp>
 
 #define MAX_PLAYER 2
 #define GAMES 3 // WhackAMole Singleplayer, WhackAMole Multiplayer, Remember
@@ -52,17 +51,16 @@ enum class GameMode {
 
 class Game {
   public:
-    Game() : matrix(RgbMatrix<DIMENSION>), shift(ShiftIn<REGISTER_COUNT>) {}
-
+    Game();
     bool isActive();
-    void begin():
+    void begin();
     void pause();
 
     virtual void start();
 
   protected:
-    RgbMatrix matrix;
-    ShiftIn shift;
+    RgbMatrix<DIMENSION> matrix;
+    ShiftIn<REGISTER_COUNT> shift;
     Player getActivePlayer();
 
     void nextPlayer();

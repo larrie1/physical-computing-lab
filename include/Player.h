@@ -6,8 +6,8 @@
 #ifndef Player_h
 #define Player_h
 
-#include <Utils.h>
 #include <Stopwatch.h>
+#include <RgbMatrix.h>
 
 #define START_TIME 300000L // 5min in ms
 

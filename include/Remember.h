@@ -49,7 +49,7 @@ class Remember : public Game {
         void showLevel() {
             for (int i = 0; i < level; i++) {
                 int index = rand() % (BUTTON_COUNT - 1);
-                activeButtons.add(index);
+                buttons.add(index);
 
                 Game::matrix.set(Game::getActivePlayer().getColor(), index, HIGH);
                 Game::matrix.write(Game::getActivePlayer().getColor());
@@ -65,7 +65,7 @@ class Remember : public Game {
             if (Game::shift.pressed(buttons[buttons.getSize() - 1])) {
                 wrongPressed = 0;
                 // turn led green
-                Game::matrix.flashWrite(Color::GREEN, SHOW_TIME, buttons[buttons.getSize() - 1])
+                Game::matrix.flashWrite(Color::GREEN, SHOW_TIME, buttons[buttons.getSize() - 1]);
 
                 buttons.removeLast();
             } else {
@@ -79,7 +79,7 @@ class Remember : public Game {
 
             if (buttons.getSize() == 0) {
                 // flash all leds green
-                Game::matrix.flashWrite(Color::GREEN, SHOW_TIME)
+                Game::matrix.flashWrite(Color::GREEN, SHOW_TIME);
 
                 level++;
                 Game::getActivePlayer().updateScore(1);

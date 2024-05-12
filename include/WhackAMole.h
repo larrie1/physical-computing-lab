@@ -10,7 +10,7 @@
 
 class WhackAMole : public Game {
     public:
-        WhackAMole(GameMode mode) : mode(GameMode::SINGLEPLAYER), level(1) {}
+        WhackAMole(GameMode mode) : level(1), mode(GameMode::SINGLEPLAYER) {}
 
         void start() override {
             // initial start
@@ -23,7 +23,7 @@ class WhackAMole : public Game {
 
             // check if button is pressed
             if (Game::shift.update()) {
-                onButtonPress()
+              onButtonPress();
             }
         }
     

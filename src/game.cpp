@@ -1,6 +1,6 @@
 #include <Game.h>
 
-void Game::begin() {
+Game::Game() {
     // Button initialization
     shift.begin(
         BUTTON_LOAD_PIN, 

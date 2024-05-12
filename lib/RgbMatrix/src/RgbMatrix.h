@@ -9,6 +9,8 @@
 #include <Arduino.h>
 #include <ShiftOut.h>
 
+#define REGISTER_COUNT 2
+
 enum class Color {
   RED,
   GREEN,
@@ -18,23 +20,23 @@ enum class Color {
 template<int dimension>
 class _RgbMatrix {
 	private:
-		const int dimensions;
-		const ShiftOut redShift;
-		const ShiftOut blueShift;
-		const ShiftOut greenShift;
+		int dimensions;
+		ShiftOut<REGISTER_COUNT> redShift;
+		ShiftOut<REGISTER_COUNT> blueShift;
+		ShiftOut<REGISTER_COUNT> greenShift;
 
 	public:
-		_RgbMatrix() : dimensions(dimension * dimension), redShift(ShiftOut<2>), greenShift(ShiftOut<2>), blueShift(ShiftOut<2>) {}
+		_RgbMatrix() : dimensions(dimension * dimension) {}
 
 		// setup all pins
 		void begin(
 			int redLatchPin, 
 			int redDataPin,
-			int greedLatchPin,
+			int greenLatchPin,
 			int greenDataPin,
 			int blueLatchPin,
 			int blueDataPin,
-			int clockPin,
+			int clockPin
 		) {
 			redShift.begin(
 				redLatchPin,
@@ -61,8 +63,8 @@ class _RgbMatrix {
 			blueShift.setAllLow();
 		}
 
-		void flashWrite(Color color, int durationMilliseconds, int index = NULL) {
-			if (index != NULL) {
+		void flashWrite(Color color, int durationMilliseconds, int index = -1) {
+			if (index != -1) {
 				set(color, index, HIGH);
 				write(color, false);
 			} else {
@@ -70,7 +72,7 @@ class _RgbMatrix {
 				write(color, false);
 			}
 
-			delay(delayMilliseconds);
+			delay(durationMilliseconds);
 			write(color);
 		}
 
@@ -89,61 +91,47 @@ class _RgbMatrix {
 				default:
 					setAllLow();
 					break;
-				}
 			}
 		}
 
 		void set(Color color, int index, int value) {
 			switch (color) {
-			case Color::RED:
-				redShift.set(index, value);
-				break;
-			case Color::GREEN:
-				greenShift.set(index, value);
-				break;
-			case Color::BLUE:
-				blueShift.set(index, value);
-				break;
+				case Color::RED:
+					redShift.set(index, value);
+					break;
+				case Color::GREEN:
+					greenShift.set(index, value);
+					break;
+				case Color::BLUE:
+					blueShift.set(index, value);
+					break;
 
-			default:
-				setAllLow();
-				break;
+				default:
+					setAllLow();
+					break;
 			}
 		}
 
-		void write(Color color, bool setAllLow = true, ShiftType data = NULL) {
+		void write(Color color, bool setAllLow = true) {
 			if (setAllLow) {
-				setAllLow();
+				this->setAllLow();
 			}
 
 			switch (color) {
 				case Color::RED:
-					if (data == NULL) {
-						redShift.write();
-					} else {
-						redShift.write(data);
-					}
+					redShift.write();
 					break;
 
 				case Color::GREEN:
-					if (data == NULL) {
-						greenShift.write();
-					} else {
-						greenShift.write(data);
-					}
+					greenShift.write();
 					break;
 
 				case Color::BLUE:
-					if (data == NULL) {
-						blueShift.write();
-					}
-					else {
-						blueShift.write(data);
-					}
+					blueShift.write();
 					break;
 				
 				default:
-					setAllLow();
+					this->setAllLow();
 					break;
 			}
 		}

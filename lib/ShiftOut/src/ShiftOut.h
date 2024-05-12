@@ -17,11 +17,11 @@ private:
 	byte clockPin;
     ShiftType state;
 
-    const uint16_t dataWidth;
-    const int bitOrder;
+    uint16_t dataWidth;
+    int bitOrder;
 
 public:
-    _ShiftOut() : dataWidth(chipCount * 8), bitOrder(MSBFIRST), state(0) {}
+    _ShiftOut() : state(0), dataWidth(chipCount * 8), bitOrder(MSBFIRST) {}
 
 	// setup all pins
 	void begin(int latch, int clock, int data) {
@@ -32,13 +32,6 @@ public:
 	}
 
     inline ShiftType getDataWidth() { return dataWidth; }
-
-    // write data to shift register
-    void write(ShiftType pattern) {
-        digitalWrite(latchPin, LOW);
-        shiftOut(dataPin, clockPin, bitOrder, ); 
-        digitalWrite(latchPin, HIGH);
-    }
 
     void write() {
         digitalWrite(latchPin, LOW);
@@ -66,6 +59,8 @@ public:
 	inline void setAllLow() { state = 0; }
 };
 
+template<byte chipCount>
+class ShiftOut : public _ShiftOut<chipCount, uint64_t> {};
 template<>
 class ShiftOut<1> : public _ShiftOut<1, uint8_t> {};
 template<>

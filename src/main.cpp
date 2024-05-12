@@ -2,25 +2,24 @@
 #include <WhackAMole.h>
 #include <Remember.h>
 #include <Arduino.h>
-#include <Utils.h>
-#include <Arduino-List.hpp>
+#include <List.hpp>
 
 List<Game> games;
 int gameIndex = 0;
 
 void setup() {
-  // add games
-  games.add(new WhackAMole(GameMode::SINGLEPLAYER));
-  games.add(new WhackAMole(GameMode::MULTIPLAYER));
-  games.add(new Remember());
+    // add games
+    games.add(WhackAMole(GameMode::SINGLEPLAYER));
+    games.add(WhackAMole(GameMode::MULTIPLAYER));
+    games.add(Remember());
 
-  // Start Button
-  pinMode(START_BUTTON_PIN, INPUT);
-  digitalWrite(START_BUTTON_PIN, LOW);
+    // Start Button
+    pinMode(START_BUTTON_PIN, INPUT);
+    digitalWrite(START_BUTTON_PIN, LOW);
 
-  // Mode Button
-  pinMode(MODE_BUTTON_PIN, INPUT);
-  digitalWrite(MODE_BUTTON_PIN, LOW);
+    // Mode Button
+    pinMode(MODE_BUTTON_PIN, INPUT);
+    digitalWrite(MODE_BUTTON_PIN, LOW);
 }
 
 void loop() {

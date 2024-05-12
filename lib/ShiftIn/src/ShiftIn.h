@@ -39,7 +39,7 @@ private:
 	byte dataPin;
 	byte clockPin;
 
-	const uint16_t dataWidth;
+	uint16_t dataWidth = 8;
 	uint8_t pulseWidth;
 
 	ShiftType lastState;

@@ -15,21 +15,17 @@ class Stopwatch {
     bool started = false;
 
   public:
-      void start();
-      void stop();
-      double elapsedMilliseconds();
-
       void start() {
         startTime = millis();
         started = true;
       }
 
-      void Stopwatch::stop() {
+      void stop() {
         endTime = millis();
         started = false;
       }
 
-      double Stopwatch::elapsedMilliseconds() {
+      double elapsedMilliseconds() {
         if(started) {
             endTime = millis();
         }
