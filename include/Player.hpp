@@ -9,7 +9,7 @@
 #include <Stopwatch.h>
 #include <RgbMatrix.h>
 
-#define START_TIME 300000L // 5min in ms
+#define START_TIME 300000 // 5min in ms
 
 class Player {
   public:
@@ -18,7 +18,11 @@ class Player {
     inline Color getColor() {return color;}
     inline void updateScore(int value) {score += value;}
     inline void pauseTime() {}
-    inline void stopMove() {watch.stop();}
+    inline void stopMove() {
+      Serial.println("You have " + String(timeLeft) + "ms left.");
+      timeLeft = timeLeft - watch.elapsedMilliseconds();
+      watch.stop();
+    }
     inline void startMove() {watch.start();}
     inline void reset() {
       score = 0;
@@ -26,19 +30,15 @@ class Player {
       stopMove();
     }
 
-    int getTime() {
-      timeLeft -= watch.elapsedMilliseconds();
-      if (timeLeft <= 0) {
-          watch.stop();
-          timeLeft = 0;
-      }
-      return timeLeft;
+    double* getTime() {
+      double elapsed = timeLeft - watch.elapsedMilliseconds();
+      return &elapsed;
     }
 
   private:
     Color color;
     int score = 0;
-    long timeLeft = START_TIME; 
+    double timeLeft = START_TIME; 
     Stopwatch watch = Stopwatch();
 };
 

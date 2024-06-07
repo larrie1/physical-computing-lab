@@ -28,9 +28,10 @@ class Stopwatch {
       double elapsedMilliseconds() {
         if(started) {
             endTime = millis();
+            return endTime - startTime;
+        } else {
+            return 0;
         }
-        
-        return endTime - startTime;
       }
 };
 

@@ -3,10 +3,14 @@
   Created by GridGurus, April to July, 2024.
   Developed for Physical Computing Lab at Leibniz University Hanover.
 */
-#ifndef Remember_h
-#define Remember_h
 
-#include <Game.h>
+#ifndef Remember_hpp
+#define Remember_hpp
+
+#include <Game.hpp>
+#include <ShiftIn.h>
+#include <RgbMatrix.h>
+#include <List.hpp>
 
 #define WRONG_PRESSES_THRESHHOLD 1
 #define SHOW_TIME 1000
@@ -18,6 +22,7 @@ enum class RememberState {
 
 class Remember : public Game {
     public:
+        Remember(RgbMatrix<DIMENSION>* matrix, ShiftIn<REGISTER_COUNT>* shift, bool debug) : Game(matrix, shift, debug) {}
         void start() override {
             // start player move and player time
             Game::start();
@@ -33,7 +38,7 @@ class Remember : public Game {
 
             if (state == RememberState::REMEMBER) {
                 // check if button is pressed
-                if (Game::shift.update()) {
+                if (shift->update()) {
                     onButtonPress();
                 }
             }
@@ -51,21 +56,21 @@ class Remember : public Game {
                 int index = rand() % (BUTTON_COUNT - 1);
                 buttons.add(index);
 
-                Game::matrix.set(Game::getActivePlayer().getColor(), index, HIGH);
-                Game::matrix.write(Game::getActivePlayer().getColor());
+                matrix->set(Game::getActivePlayer().getColor(), index, HIGH);
+                matrix->write(Game::getActivePlayer().getColor());
                 delay(SHOW_TIME);
-                Game::matrix.setAllLow();
-                Game::matrix.write(Game::getActivePlayer().getColor());
+                matrix->setAllLow();
+                matrix->write(Game::getActivePlayer().getColor());
             }
             // next state 
             state = RememberState::REMEMBER;
         }
 
         void onButtonPress() {
-            if (Game::shift.pressed(buttons[buttons.getSize() - 1])) {
+            if (shift->pressed(buttons[buttons.getSize() - 1])) {
                 wrongPressed = 0;
                 // turn led green
-                Game::matrix.flashWrite(Color::GREEN, SHOW_TIME, buttons[buttons.getSize() - 1]);
+                matrix->flashWrite(Color::GREEN, SHOW_TIME, buttons[buttons.getSize() - 1]);
 
                 buttons.removeLast();
             } else {
@@ -79,7 +84,7 @@ class Remember : public Game {
 
             if (buttons.getSize() == 0) {
                 // flash all leds green
-                Game::matrix.flashWrite(Color::GREEN, SHOW_TIME);
+                matrix->flashWrite(Color::GREEN, SHOW_TIME);
 
                 level++;
                 Game::getActivePlayer().updateScore(1);

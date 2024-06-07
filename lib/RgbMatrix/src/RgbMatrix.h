@@ -20,13 +20,12 @@ enum class Color {
 template<int dimension>
 class _RgbMatrix {
 	private:
-		int dimensions;
 		ShiftOut<REGISTER_COUNT> redShift;
 		ShiftOut<REGISTER_COUNT> blueShift;
 		ShiftOut<REGISTER_COUNT> greenShift;
 
 	public:
-		_RgbMatrix() : dimensions(dimension * dimension) {}
+		_RgbMatrix() {}
 
 		// setup all pins
 		void begin(
@@ -133,6 +132,27 @@ class _RgbMatrix {
 				default:
 					this->setAllLow();
 					break;
+			}
+			print();
+		}
+
+		void print() {
+			Serial.println("Current matrix state:");
+			for (int i = 1; i <= dimension * dimension; i++) {
+				if (redShift.get(i - 1)) {
+					Serial.print(" R ");
+				} else if (greenShift.get(i - 1)) {
+					Serial.print(" G ");
+				} else if (blueShift.get(i - 1)) {
+					Serial.print(" B ");
+				} else {
+					Serial.print(" 0 ");
+				}
+
+				// New line
+				if (i % dimension == 0) {
+					Serial.println();
+				}
 			}
 		}
 };

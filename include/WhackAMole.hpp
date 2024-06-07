@@ -3,34 +3,41 @@
   Created by GridGurus, April to July, 2024.
   Developed for Physical Computing Lab at Leibniz University Hanover.
 */
-#ifndef WhackAMole_h
-#define WhackAMole_h
+#ifndef WhackAMole_hpp
+#define WhackAMole_hpp
 
-#include <Game.h>
+#include <Game.hpp>
+#include <ShiftIn.h>
+#include <RgbMatrix.h>
+#include <List.hpp>
 
 class WhackAMole : public Game {
     public:
-        WhackAMole(GameMode mode) : level(1), mode(GameMode::SINGLEPLAYER) {}
+        WhackAMole(GameMode mode, RgbMatrix<DIMENSION>* matrix, ShiftIn<REGISTER_COUNT>* shift, bool debug) : Game(matrix, shift, debug), level(1), mode(GameMode::SINGLEPLAYER) {}
 
         void start() override {
-            // initial start
-            if (!Game::isActive()) {
-              setupLevel();
-            }
-
             // start player move and player time
             Game::start();
 
-            // check if button is pressed
-            if (Game::shift.update()) {
-              onButtonPress();
+            if (Game::isActive()) {
+                // initial start
+                if (!initialized) {
+                    initialized = true;
+                    setupLevel();
+                }
+
+                // check if button is pressed
+                if (!debug && shift->update()) {
+                  onButtonPress();
+                }
             }
         }
-    
+
     private:
         int level;
         List<int> activeButtons;
         GameMode mode;
+        bool initialized = false;
 
         void setupLevel() {
             int index = 0;
@@ -42,10 +49,11 @@ class WhackAMole : public Game {
               } while (contains(index));
 
               activeButtons.add(index);
-              Game::matrix.set(Game::getActivePlayer().getColor(), index, HIGH);
+              Serial.println("Index: " + String(index));
+              matrix->set(Game::getActivePlayer().getColor(), index, HIGH);
             }
-
-            Game::matrix.write(Game::getActivePlayer().getColor());
+            Serial.println(Game::getPlayerColor(Game::getActivePlayer().getColor()));
+            matrix->write(Game::getActivePlayer().getColor());
         }
 
         bool contains(int target) {
@@ -59,12 +67,12 @@ class WhackAMole : public Game {
 
         void onButtonPress() {
             for (int i = 0; i < BUTTON_COUNT; i++) {
-                if (Game::shift.pressed(i)) {
+                if (shift->pressed(i)) {
                     if (contains(i)) {
                         // remove pressed button
                         activeButtons.remove(i);
                         // turn led off
-                        Game::matrix.set(Game::getActivePlayer().getColor(), i, LOW);
+                        matrix->set(Game::getActivePlayer().getColor(), i, LOW);
                         // if it was the last button increase the score
                         if (activeButtons.getSize() == 0) {
                           Game::getActivePlayer().updateScore(1);
@@ -73,14 +81,14 @@ class WhackAMole : public Game {
                       // set score of active player
                       Game::getActivePlayer().updateScore(-1);
                       // set all leds LOW
-                      Game::matrix.setAllLow();
+                      matrix->setAllLow();
                       // remove remaining buttons 
                       activeButtons.clear();
                     }
                 }
             }
             // write new data to matrix
-            Game::matrix.write(Game::getActivePlayer().getColor(), false);
+            matrix->write(Game::getActivePlayer().getColor(), false);
 
             if (activeButtons.getSize() == 0) {
               level++;
