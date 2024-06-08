@@ -1,5 +1,5 @@
 /*
-  Game.h - Library for handling the game.
+  Game.hpp - Library for handling the game.
   Created by GridGurus, April to July, 2024.
   Developed for Physical Computing Lab at Leibniz University Hanover.
 */
@@ -13,47 +13,11 @@
 #include <RgbMatrix.h>
 #include <Arduino.h>
 #include <List.hpp>
-
-#define MAX_PLAYER 2
-#define GAMES 3 // WhackAMole Singleplayer, WhackAMole Multiplayer, Remember
-#define DIMENSION 4
-#define REGISTER_COUNT 2
-#define BUTTON_COUNT 16
-
-/** Constants **/
-#define START_BUTTON_PIN  1
-#define MODE_BUTTON_PIN 2
-#define BUTTON_COUNT 16
-
-// Buttons
-#define BUTTON_LOAD_PIN 1
-#define BUTTON_CLOCK_ENABLE_PIN 2
-#define BUTTON_DATA_PIN 3
-#define BUTTON_CLOCK_PIN 4
-
-// Red LEDs
-#define RED_LATCH_PIN 7
-#define RED_DATA_PIN 8
-
-// Green LEDs
-#define GREEN_LATCH_PIN 10
-#define GREEN_DATA_PIN 11
-
-// Blue LEDs
-#define BLUE_LATCH_PIN 13
-#define BLUE_DATA_PIN 14
-
-// Clock
-#define CLOCK_PIN 6
-
-enum class GameMode {
-    SINGLEPLAYER,
-    MULTIPLAYER
-};
+#include <Globals.hpp>
 
 class Game {
   public:
-    Game(RgbMatrix<DIMENSION> *matrix, ShiftIn<REGISTER_COUNT> *shift, bool debug) : matrix(matrix), shift(shift), debug(debug) {}
+    Game(int level, GameMode mode) : level(level), mode(mode) {}
 
     bool isActive() { return isCurrentlyActive;};
 
@@ -70,7 +34,7 @@ class Game {
         }
 
         // end game
-        if (*activePlayer.getTime() <= 0) {
+        if (activePlayer.getTime() <= 0) {
             Serial.println("You ran out of time!");
             // TODO show score on display
 
@@ -93,10 +57,11 @@ class Game {
     }
 
   protected:
-    RgbMatrix<DIMENSION>* matrix;
-    ShiftIn<REGISTER_COUNT>* shift;
+    int level;
+    List<int> activeButtons;
+    GameMode mode;
+    bool initialized = false;
     Player getActivePlayer() { return activePlayer; };
-    bool debug;
 
     void nextPlayer() {
         activePlayer.stopMove();
@@ -115,19 +80,6 @@ class Game {
         }
         matrix->setAllLow();
     };
-
-    String getPlayerColor(Color color) {
-        switch (color) {
-            case Color::RED:
-                return "RED";
-            case Color::GREEN:
-                return "GREEN";
-            case Color::BLUE:
-                return "BLUE";
-            default:
-                return "UNKNOWN";
-        }
-    }
 
   private:
     bool isCurrentlyActive = false;

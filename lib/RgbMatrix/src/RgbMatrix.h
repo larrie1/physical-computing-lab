@@ -7,7 +7,7 @@
 #define RgbMatrix_h
 
 #include <Arduino.h>
-#include <ShiftOut.h>
+#include "ShiftOut.h"
 
 #define REGISTER_COUNT 2
 
@@ -65,10 +65,10 @@ class _RgbMatrix {
 		void flashWrite(Color color, int durationMilliseconds, int index = -1) {
 			if (index != -1) {
 				set(color, index, HIGH);
-				write(color, false);
+				write(color);
 			} else {
 				setAllHigh(color);
-				write(color, false);
+				write(color);
 			}
 
 			delay(durationMilliseconds);
@@ -111,11 +111,7 @@ class _RgbMatrix {
 			}
 		}
 
-		void write(Color color, bool setAllLow = true) {
-			if (setAllLow) {
-				this->setAllLow();
-			}
-
+		void write(Color color, bool print = false) {
 			switch (color) {
 				case Color::RED:
 					redShift.write();
@@ -133,11 +129,26 @@ class _RgbMatrix {
 					this->setAllLow();
 					break;
 			}
-			print();
+			if (print) {
+				this->print();
+			}
+		}
+
+		// Function to print uint16_t as a binary string
+		void printBinary(uint16_t value) {
+			for (int i = 15; i >= 0; i--) {
+				Serial.print((value >> i) & 1);
+			}
+			Serial.println();
 		}
 
 		void print() {
-			Serial.println("Current matrix state:");
+			Serial.print("Red state: ");
+			printBinary(redShift.state);
+			Serial.print("Green state: ");
+			printBinary(greenShift.state);
+			Serial.print("Blue state: ");
+			printBinary(blueShift.state);
 			for (int i = 1; i <= dimension * dimension; i++) {
 				if (redShift.get(i - 1)) {
 					Serial.print(" R ");

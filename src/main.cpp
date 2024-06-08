@@ -3,12 +3,17 @@
 #include <WhackAMole.hpp>
 #include <List.hpp>
 #include <Arduino.h>
+#include <Globals.hpp>
 
-RgbMatrix<DIMENSION>* matrix;
-ShiftIn<REGISTER_COUNT>* shift;
+// Register
+RgbMatrix<DIMENSION> *matrix = new RgbMatrix<DIMENSION>();
+ShiftIn<REGISTER_COUNT> *shift = new ShiftIn<REGISTER_COUNT>();
+
+// constants
 List<Game*> games;
 int gameIndex = 0;
 bool debug = true;
+char buttonMap[16] = { '1', '2', '3', '4', 'q', 'w', 'e', 'r', 'a', 's', 'd', 'f', 'y', 'x', 'c', 'v' };
 
 String getGameName(int index) {
     switch (index) {
@@ -17,7 +22,9 @@ String getGameName(int index) {
         case 1:
             return "WhackAMole Multiplayer";
         case 2:
-            return "Remember";
+            return "Remember Singleplayer";
+        case 3:
+            return "Remember Multiplayer";
         default:
             return "Unknown";
     }
@@ -27,6 +34,19 @@ void setup() {
     Serial.begin(9600);
 
     if (!debug) {
+        Serial.println();
+        Serial.println("#################################################");
+        Serial.println("#           Matrix Game Console                 #");
+        Serial.println("#          Created by GridGurus                 #");
+        Serial.println("#                                               #");      
+        Serial.println("# Available Games:                              #");
+        Serial.println("#       - Whack-A-Mole Singleplayer             #");
+        Serial.println("#       - Whack-A-Mole Multiplayer              #");
+        Serial.println("#       - Remember Singleplayer                 #");
+        Serial.println("#       - Remember Multiplayer                  #");
+        Serial.println("#################################################");
+        Serial.println();
+
         // Button initialization
         shift->begin(
             BUTTON_LOAD_PIN, 
@@ -46,19 +66,25 @@ void setup() {
             CLOCK_PIN
         );
     } else {
-        Serial.println("Starting in debug mode");
+        Serial.println();
+        Serial.println("#################################################");
+        Serial.println("# Starting in debug mode                        #");
+        Serial.println("# The Matrix is emulated with follwing keys:    #");
+        Serial.println("#       1 2 3 4                                 #");
+        Serial.println("#       q w e r                                 #");
+        Serial.println("#       a s d f                                 #");
+        Serial.println("#       y x c v                                 #");
+        Serial.println("#################################################");
+        Serial.println();
     }
 
-    Game* game1 = new WhackAMole(GameMode::SINGLEPLAYER, matrix, shift, debug);
-    Game* game2 = new WhackAMole(GameMode::MULTIPLAYER, matrix, shift, debug);
-    Game* game3 = new Remember(matrix, shift, debug);
-
     // add games
-    games.add(game1);
-    games.add(game2);
-    games.add(game3);
+    games.add(new WhackAMole(GameMode::SINGLEPLAYER));
+    games.add(new WhackAMole(GameMode::MULTIPLAYER));
+    games.add(new Remember(GameMode::SINGLEPLAYER));
+    games.add(new Remember(GameMode::MULTIPLAYER));
 
-    Serial.println("Do you want to play " + getGameName(gameIndex) + "? (s) Start, (n) Next");
+    Serial.println("Do you want to play " + getGameName(gameIndex) + "? (1) Start, (2) Next");
 }
 
 void loop() {
@@ -67,13 +93,13 @@ void loop() {
     } else if (debug) {
         if (Serial.available() > 0) {
             char input = Serial.read();
-            if (input == 's') {
+            if (input == buttonMap[0]) {
                 Serial.println("Starting game " + getGameName(gameIndex) + "...");
                 games[gameIndex]->start();
             }
-            if (input == 'n') {
+            if (input == buttonMap[1]) {
                 gameIndex = (gameIndex + 1) % GAMES;
-                Serial.println("Do you want to play " + getGameName(gameIndex) + "? (s) Start, (n) Next");
+                Serial.println("Do you want to play " + getGameName(gameIndex) + "? (1) Start, (2) Next");
             }
         }
         delay(1000);

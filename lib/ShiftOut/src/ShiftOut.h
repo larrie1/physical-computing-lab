@@ -7,7 +7,7 @@
 #ifndef ShiftOut_h
 #define ShiftOut_h
 
-#include "Arduino.h"
+#include <Arduino.h>
 
 template<byte chipCount, typename ShiftType>
 class _ShiftOut {
@@ -15,13 +15,14 @@ private:
 	byte latchPin;
 	byte dataPin;
 	byte clockPin;
-    ShiftType state;
 
     uint16_t dataWidth;
     int bitOrder;
 
 public:
     _ShiftOut() : state(0), dataWidth(chipCount * 8), bitOrder(MSBFIRST) {}
+
+	ShiftType state;
 
 	// setup all pins
 	void begin(int latch, int clock, int data) {

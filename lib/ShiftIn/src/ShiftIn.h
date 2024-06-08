@@ -29,7 +29,7 @@ SOFTWARE.
 #ifndef ShiftIn_h
 #define ShiftIn_h
 
-#include "Arduino.h"
+#include <Arduino.h>
 
 template<byte chipCount, typename ShiftType>
 class _ShiftIn {
