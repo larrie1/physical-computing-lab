@@ -63,6 +63,7 @@ extern RgbMatrix<DIMENSION> *matrix;
 extern ShiftIn<REGISTER_COUNT> *shift;
 extern bool debug;
 extern char buttonMap[16];
+extern bool isInMenu;
 /** ----------- VARIABLES END ----------- */
 
 String getPlayerColor(Color color) {

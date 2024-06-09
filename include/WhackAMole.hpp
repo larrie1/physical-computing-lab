@@ -3,6 +3,7 @@
   Created by GridGurus, April to July, 2024.
   Developed for Physical Computing Lab at Leibniz University Hanover.
 */
+
 #ifndef WhackAMole_hpp
 #define WhackAMole_hpp
 
@@ -75,7 +76,7 @@ class WhackAMole : public Game {
                     // remove pressed button
                     Game::activeButtons.remove(button);
                     // update player's score
-                    Game::players[player].updateScore(1);
+                    Game::players[player]->updateScore(1);
                     // add new button
                     Game::addRandomButton(player, 1);
                     // button got removed and a new one got added

@@ -143,12 +143,12 @@ class _RgbMatrix {
 		}
 
 		void print() {
-			Serial.print("Red state: ");
-			printBinary(redShift.state);
-			Serial.print("Green state: ");
-			printBinary(greenShift.state);
-			Serial.print("Blue state: ");
-			printBinary(blueShift.state);
+			// Serial.print("Red state: ");
+			// printBinary(redShift.state);
+			// Serial.print("Green state: ");
+			// printBinary(greenShift.state);
+			// Serial.print("Blue state: ");
+			// printBinary(blueShift.state);
 			for (int i = 1; i <= dimension * dimension; i++) {
 				if (redShift.get(i - 1)) {
 					Serial.print(" R ");

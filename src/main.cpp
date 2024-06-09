@@ -13,7 +13,8 @@ ShiftIn<REGISTER_COUNT> *shift = new ShiftIn<REGISTER_COUNT>();
 List<Game*> games;
 int gameIndex = 0;
 bool debug = true;
-char buttonMap[16] = { '1', '2', '3', '4', 'q', 'w', 'e', 'r', 'a', 's', 'd', 'f', 'y', 'x', 'c', 'v' };
+bool isInMenu = true;
+char buttonMap[16] = {'1', '2', '3', '4', 'q', 'w', 'e', 'r', 'a', 's', 'd', 'f', 'y', 'x', 'c', 'v'};
 
 String getGameName(int index) {
     switch (index) {
@@ -83,11 +84,14 @@ void setup() {
     games.add(new WhackAMole(GameMode::MULTIPLAYER));
     games.add(new Remember(GameMode::SINGLEPLAYER));
     games.add(new Remember(GameMode::MULTIPLAYER));
-
-    Serial.println("Do you want to play " + getGameName(gameIndex) + "? (1) Start, (2) Next");
 }
 
 void loop() {
+    if (isInMenu) {
+        Serial.println("Do you want to play " + getGameName(gameIndex) + "? (1) Start, (2) Next");
+        isInMenu = false;
+    }
+
     if (games[0]->isActive() || games[1]->isActive() || games[2]->isActive() || games[3]->isActive()) {
         games[gameIndex]->loop();
     } else if (debug) {
@@ -99,15 +103,15 @@ void loop() {
             }
             if (input == buttonMap[1]) {
                 gameIndex = (gameIndex + 1) % GAMES;
-                Serial.println("Do you want to play " + getGameName(gameIndex) + "? (1) Start, (2) Next");
+                isInMenu = true;
             }
         }
-        delay(1000);
     } else {
         if (!games[gameIndex]->isActive()) {
             // Mode Selection
             if ((shift->pressed(1))) {
                 gameIndex = (gameIndex + 1) % GAMES;
+                isInMenu = true;
             }
 
             // Start/Pause Game

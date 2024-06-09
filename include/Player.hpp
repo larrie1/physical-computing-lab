@@ -16,7 +16,7 @@
 
 class Player {
   public:
-    Player(Color color) : color(Color::RED) {}
+    Player(Color color) : color(color) {}
 
     inline Color getColor() {return color;}
 
