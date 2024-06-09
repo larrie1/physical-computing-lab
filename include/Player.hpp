@@ -11,23 +11,30 @@
 #include <RgbMatrix.h>
 #include <Arduino.h>
 #include <Globals.hpp>
+#include <Button.hpp>
+#include <List.hpp>
 
 class Player {
   public:
     Player(Color color) : color(Color::RED) {}
 
     inline Color getColor() {return color;}
+
     inline void updateScore(int value) {
       score += value;
       Serial.println("Score of Player " + getPlayerColor(color) + ": " + String(score));
     }
+
     inline void pauseTime() {}
+
     inline void stopMove() {
       Serial.println("Player " + getPlayerColor(color) + " has " + String(timeLeft) + "ms left.");
       timeLeft = timeLeft - watch.elapsedMilliseconds();
       watch.stop();
     }
+    
     inline void startMove() {watch.start();}
+
     inline void reset() {
       Serial.println("Reset Player " + getPlayerColor(color));
       score = 0;

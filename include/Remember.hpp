@@ -22,76 +22,76 @@ class Remember : public Game {
     public:
         Remember(GameMode mode) : Game(1, mode) {}
 
-        void start() override {
-            // start player move and player time
-            Game::start();
+    //     void start() override {
+    //         // start player move and player time
+    //         Game::loop();
 
-            if (state == RememberState::SHOWING) {
-                // stop player watch
-                Game::getActivePlayer().stopMove();
-                // show button pattern
-                showLevel();
-                // start player watch
-                Game::getActivePlayer().startMove();
-            } 
+    //         if (state == RememberState::SHOWING) {
+    //             // stop player watch
+    //             Game::getActivePlayer().stopMove();
+    //             // show button pattern
+    //             showLevel();
+    //             // start player watch
+    //             Game::getActivePlayer().startMove();
+    //         } 
 
-            if (state == RememberState::REMEMBER) {
-                // check if button is pressed
-                if (shift->update()) {
-                    onButtonPress();
-                }
-            }
-        }
+    //         if (state == RememberState::REMEMBER) {
+    //             // check if button is pressed
+    //             if (shift->update()) {
+    //                 onButtonPress();
+    //             }
+    //         }
+    //     }
 
-    private:
-        int wrongPressed = 0;
-        RememberState state = RememberState::SHOWING;
+    // private:
+    //     int wrongPressed = 0;
+    //     RememberState state = RememberState::SHOWING;
 
-        void showLevel() {
-            for (int i = 0; i < level; i++) {
-                int index = rand() % (BUTTON_COUNT - 1);
-                activeButtons.add(index);
+    //     void showLevel() {
+    //         for (int i = 0; i < level; i++) {
+    //             int index = rand() % (BUTTON_COUNT - 1);
+    //             activeButtons.add(index);
 
-                matrix->set(Game::getActivePlayer().getColor(), index, HIGH);
-                matrix->write(Game::getActivePlayer().getColor());
-                delay(SHOW_TIME);
-                matrix->setAllLow();
-                matrix->write(Game::getActivePlayer().getColor());
-            }
-            // next state 
-            state = RememberState::REMEMBER;
-        }
+    //             matrix->set(Game::getActivePlayer().getColor(), index, HIGH);
+    //             matrix->write(Game::getActivePlayer().getColor());
+    //             delay(SHOW_TIME);
+    //             matrix->setAllLow();
+    //             matrix->write(Game::getActivePlayer().getColor());
+    //         }
+    //         // next state 
+    //         state = RememberState::REMEMBER;
+    //     }
 
-        void onButtonPress() {
-            if (shift->pressed(activeButtons[activeButtons.getSize() - 1])) {
-                wrongPressed = 0;
-                // turn led green
-                matrix->flashWrite(Color::GREEN, SHOW_TIME, activeButtons[activeButtons.getSize() - 1]);
+    //     void onButtonPress() {
+    //         if (shift->pressed(activeButtons[activeButtons.getSize() - 1])) {
+    //             wrongPressed = 0;
+    //             // turn led green
+    //             matrix->flashWrite(Color::GREEN, SHOW_TIME, activeButtons[activeButtons.getSize() - 1]);
 
-                activeButtons.removeLast();
-            } else {
-                wrongPressed++;
-                Game::getActivePlayer().updateScore(-1);
-                if (wrongPressed > WRONG_PRESSES_THRESHHOLD) {
-                    Game::reset();
-                    // TODO next player or next player won
-                }
-            }
+    //             activeButtons.removeLast();
+    //         } else {
+    //             wrongPressed++;
+    //             Game::getActivePlayer().updateScore(-1);
+    //             if (wrongPressed > WRONG_PRESSES_THRESHHOLD) {
+    //                 Game::reset();
+    //                 // TODO next player or next player won
+    //             }
+    //         }
 
-            if (activeButtons.getSize() == 0) {
-                // flash all leds green
-                matrix->flashWrite(Color::GREEN, SHOW_TIME);
+    //         if (activeButtons.getSize() == 0) {
+    //             // flash all leds green
+    //             matrix->flashWrite(Color::GREEN, SHOW_TIME);
 
-                level++;
-                Game::getActivePlayer().updateScore(1);
+    //             level++;
+    //             Game::getActivePlayer().updateScore(1);
 
-                if (mode == GameMode::MULTIPLAYER) {
-                    Game::nextPlayer();
-                }
+    //             if (mode == GameMode::MULTIPLAYER) {
+    //                 Game::nextPlayer();
+    //             }
 
-                state = RememberState::SHOWING;
-            }
-        }
+    //             state = RememberState::SHOWING;
+    //         }
+    //     }
 };
 
 #endif

@@ -14,6 +14,7 @@
 #include <Arduino.h>
 #include <List.hpp>
 #include <Globals.hpp>
+#include <Button.hpp>
 
 class Game {
   public:
@@ -21,29 +22,60 @@ class Game {
 
     bool isActive() { return isCurrentlyActive;};
 
-    virtual void start() {
+    virtual void loop() {
         if (!isCurrentlyActive) {
-          isCurrentlyActive = true;
+            setup();
+        }
+
+        // update button list 
+        update();
+
+        // write current state to matrix and update players
+        for (int i = 0; i < MAX_PLAYER && changed; i++) {
+          matrix->write(players[i].getColor(), changed * i);
+          // just updated the led's
+          if (i == MAX_PLAYER - 1) {
+            changed = false;
+          }
+        }
+
+        // end game
+        // if (activePlayer.getTime() <= 0) {
+        //     Serial.println("You ran out of time!");
+        //     // TODO show score on display
+
+        //     reset();
+
+        //     // TODO show animation
+
+        //     Serial.println("Back to menu ...");
+        // }
+    };
+
+  protected:
+    int level;
+    GameMode mode;
+    Player players[MAX_PLAYER] = {Player(Color::RED), Player(Color::GREEN)};
+    List<Button*> activeButtons;
+    bool changed = false;
+
+    virtual void setup() {
+          // reset states
+          matrix->setAllLow();
+          for (int player = 0; player < MAX_PLAYER; player++) {
+            players[player].reset();
+          }
+
           // TODO show countdown
           // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I
           // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I
           // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I
           // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I
-          activePlayer.startMove();
-          Serial.println("Player " + getPlayerColor(activePlayer.getColor()) + " starts!");
-        }
 
-        // end game
-        if (activePlayer.getTime() <= 0) {
-            Serial.println("You ran out of time!");
-            // TODO show score on display
+          // activePlayer.startMove();
+          // Serial.println("Player " + getPlayerColor(activePlayer.getColor()) + " starts!");
 
-            reset();
-
-            // TODO show animation
-
-            Serial.println("Back to menu ...");
-        }
+          isCurrentlyActive = true;
     };
 
     void pause() {
@@ -56,11 +88,6 @@ class Game {
         // I 0 0 I
     }
 
-  protected:
-    int level;
-    List<int> activeButtons;
-    GameMode mode;
-    bool initialized = false;
     Player getActivePlayer() { return activePlayer; };
 
     void nextPlayer() {
@@ -78,12 +105,46 @@ class Game {
         for (int i = 0; i < MAX_PLAYER; i++) {
             players[i].reset();
         }
+        activeButtons.clear();
         matrix->setAllLow();
+        changed = false;
     };
+
+    void update() {
+      List<int> toRemove;
+      matrix->setAllLow();
+      for (int i = 0; i < activeButtons.getSize(); i++) {
+        double remainingTime = activeButtons[i]->getRemainingTime();
+        if (remainingTime > 0) {
+          // set led for player on
+          matrix->set(players[activeButtons[i]->getPlayer()].getColor(), activeButtons[i]->getIndex(), HIGH);
+        } else {
+          // add index 
+          toRemove.add(i);
+          // update score
+          players[activeButtons[i]->getPlayer()].updateScore(-1);
+          // ran out of time for button
+          changed = true;
+          // stop the game
+          isCurrentlyActive = false;
+        }
+      }
+      for (int i = 0; i < toRemove.getSize(); i++) {
+        activeButtons.remove(i);
+      }
+    }
+
+    void addRandomButton(int player, int size) {
+      for (int i = 0; i < size; i++) {
+          int index = rand() % (BUTTON_COUNT - 1);
+          activeButtons.add(new Button(index, player, BUTTON_TIME * (debug * 10)));
+          matrix->set(players[player].getColor(), index, HIGH);
+      }
+      changed = true;
+    }
 
   private:
     bool isCurrentlyActive = false;
-    Player players[MAX_PLAYER] = {Player(Color::RED), Player(Color::GREEN)};
     Player activePlayer = players[0];
 };
 

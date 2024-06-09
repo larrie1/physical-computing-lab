@@ -15,8 +15,11 @@
 #define START_TIME 300000 // 5min in ms
 #define WRONG_PRESSES_THRESHHOLD 1
 #define SHOW_TIME 1000
+#define BUTTON_TIME 3000
 
 #define MAX_PLAYER 2
+#define PLAYER_1 0
+#define PLAYER_2 1
 #define GAMES 4 // WhackAMole Singleplayer, WhackAMole Multiplayer, Remember Singleplayer, Remember Multiplayer
 #define DIMENSION 4
 #define REGISTER_COUNT 2

@@ -39,9 +39,9 @@ public:
 		for(byte i = 0; i < chipCount; i++) {
 			shiftOut(dataPin, clockPin, bitOrder, (byte)(state >> (8 * i))); //1 << index
 		}
-		digitalWrite(latchPin, HIGH); 
+		digitalWrite(latchPin, HIGH);
 	}
-    
+
 	void write(ShiftType data) {
 		state = data;
 		write();

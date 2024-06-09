@@ -88,14 +88,14 @@ void setup() {
 }
 
 void loop() {
-    if (games[0]->isActive() || games[1]->isActive() || games[2]->isActive()) {
-        games[gameIndex]->start();
+    if (games[0]->isActive() || games[1]->isActive() || games[2]->isActive() || games[3]->isActive()) {
+        games[gameIndex]->loop();
     } else if (debug) {
         if (Serial.available() > 0) {
             char input = Serial.read();
             if (input == buttonMap[0]) {
                 Serial.println("Starting game " + getGameName(gameIndex) + "...");
-                games[gameIndex]->start();
+                games[gameIndex]->loop();
             }
             if (input == buttonMap[1]) {
                 gameIndex = (gameIndex + 1) % GAMES;
@@ -112,7 +112,7 @@ void loop() {
 
             // Start/Pause Game
             if (shift->pressed(0)) {
-                games[gameIndex]->start();
+                games[gameIndex]->loop();
             }
         } else {
             // handle pause / stop
