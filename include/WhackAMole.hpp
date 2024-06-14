@@ -11,7 +11,6 @@
 #include <ShiftIn.h>
 #include <RgbMatrix.h>
 #include <Arduino.h>
-#include <List.hpp>
 #include <Globals.hpp>
 
 class WhackAMole : public Game {

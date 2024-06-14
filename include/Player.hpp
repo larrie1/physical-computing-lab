@@ -12,7 +12,6 @@
 #include <Arduino.h>
 #include <Globals.hpp>
 #include <Button.hpp>
-#include <List.hpp>
 
 class Player {
   public:

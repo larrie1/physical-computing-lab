@@ -27,6 +27,16 @@
 #define BUTTON_COUNT 16
 /** ----------- CONSTANS END ----------- */
 
+
+/** ----------- VARIABLES ----------- */
+extern RgbMatrix<DIMENSION> matrix;
+extern ShiftIn<REGISTER_COUNT> shift;
+extern const bool debug;
+extern const char buttonMap[16];
+extern bool isInMenu;
+/** ----------- VARIABLES END ----------- */
+
+
 /** ----------- PINS ----------- */
 #define START_BUTTON_PIN  1
 #define MODE_BUTTON_PIN 2
@@ -54,31 +64,29 @@
 #define CLOCK_PIN 6
 /** ----------- PINS END ----------- */
 
+
+/** ----------- ENUMS ----------- */
 enum class GameMode {
     SINGLEPLAYER = 1,
     MULTIPLAYER = 2,
     UNKNOWN = 3
 };
+/** ----------- ENUMS END ----------- */
 
-/** ----------- VARIABLES ----------- */
-extern RgbMatrix<DIMENSION> matrix;
-extern ShiftIn<REGISTER_COUNT> shift;
-extern const bool debug;
-extern const char buttonMap[16];
-extern bool isInMenu;
-/** ----------- VARIABLES END ----------- */
 
+/** ----------- FUNCTIONS ----------- */
 String getPlayerColor(Color color) {
-        switch (color) {
-            case Color::RED:
-                return "RED";
-            case Color::GREEN:
-                return "GREEN";
-            case Color::BLUE:
-                return "BLUE";
-            default:
-                return "UNKNOWN";
-        }
+    switch (color) {
+        case Color::RED:
+            return "RED";
+        case Color::GREEN:
+            return "GREEN";
+        case Color::BLUE:
+            return "BLUE";
+        default:
+            return "UNKNOWN";
     }
+}
+/** ----------- FUNCTIONS END ----------- */
 
 #endif

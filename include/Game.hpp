@@ -12,7 +12,6 @@
 #include <ShiftIn.h>
 #include <RgbMatrix.h>
 #include <Arduino.h>
-#include <List.hpp>
 #include <Globals.hpp>
 #include <Button.hpp>
 
@@ -41,18 +40,6 @@ class Game {
           }
           matrix.write(players[i].getColor(), !changed);
         }
-
-        // end game
-        // if (activePlayer.getTime() <= 0) {
-        //     Serial.println("You ran out of time!");
-        //     // TODO show score on display
-
-        //     reset();
-
-        //     // TODO show animation
-
-        //     Serial.println("Back to menu ...");
-        // }
     };
 
     virtual void reset() {
@@ -93,32 +80,16 @@ class Game {
           // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I
           // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I
 
-          // activePlayer.startMove();
-          // Serial.println("Player " + getPlayerColor(activePlayer.getColor()) + " starts!");
           isCurrentlyActive = true;
     };
 
     void pause() {
-        // activePlayer.pauseTime();
-
         // TODO show pause icon
         // I 0 0 I
         // I 0 0 I
         // I 0 0 I
         // I 0 0 I
     }
-
-    // Player getActivePlayer() { return activePlayer; };
-
-    // void nextPlayer() {
-    //     activePlayer.stopMove();
-    //     if (activePlayer.getColor() == players[0].getColor()) {
-    //         activePlayer = players[1];
-    //     } else {
-    //         activePlayer = players[0];
-    //     }
-    //     activePlayer.startMove();
-    // };
 
     void update() {
       matrix.setAllLow();
@@ -166,7 +137,6 @@ class Game {
 
   private:
     bool isCurrentlyActive = false;
-    // Player activePlayer = players[0];
 };
 
 #endif

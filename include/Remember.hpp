@@ -10,7 +10,6 @@
 #include <Game.hpp>
 #include <ShiftIn.h>
 #include <RgbMatrix.h>
-#include <List.hpp>
 #include <Globals.hpp>
 
 enum class RememberState {
