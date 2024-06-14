@@ -16,11 +16,15 @@
 
 class Player {
   public:
+    // Default constructor
+    Player() : color(Color::RED) {}
+
     Player(Color color) : color(color) {}
 
     inline Color getColor() {return color;}
+    inline int8_t getScore() {return score;}
 
-    inline void updateScore(int value) {
+    inline void updateScore(int8_t value) {
       score += value;
       Serial.println("Score of Player " + getPlayerColor(color) + ": " + String(score));
     }
@@ -49,7 +53,7 @@ class Player {
 
   private:
     Color color;
-    int score = 0;
+    int8_t score = 0;
     double timeLeft = START_TIME; 
     Stopwatch watch = Stopwatch();
 };

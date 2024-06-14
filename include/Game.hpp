@@ -18,7 +18,10 @@
 
 class Game {
   public:
-    Game(int level, GameMode mode) : level(level), mode(mode) {}
+    // Default constructor
+    Game() : level(-1), mode(GameMode::UNKNOWN) {}
+
+    Game(uint8_t level, GameMode mode) : level(level), mode(mode) {}
 
     bool isActive() { return isCurrentlyActive;};
 
@@ -31,12 +34,12 @@ class Game {
         update();
 
         // write current state to matrix and update players
-        for (int i = 0; i < MAX_PLAYER && changed; i++) {
-          matrix->write(players[i]->getColor(), changed * i);
+        for (uint8_t i = 0; i < static_cast<uint8_t>(mode) && changed; i++) {
           // just updated the led's
-          if (i == MAX_PLAYER - 1) {
+          if (i == static_cast<uint8_t>(mode) - 1) {
             changed = false;
           }
+          matrix.write(players[i].getColor(), !changed);
         }
 
         // end game
@@ -52,21 +55,36 @@ class Game {
         // }
     };
 
+    virtual void reset() {
+        isCurrentlyActive = false;
+        for (uint8_t i = 0; i < static_cast<uint8_t>(mode); i++) {
+            players[i].reset();
+        }
+        
+        for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
+            activeButtons[i].remove();
+        }
+
+        matrix.setAllLow();
+        changed = false;
+        isInMenu = true;
+        Serial.println(F("Quitting the game ..."));
+    };
+
   protected:
-    int level;
+    uint8_t level;
     GameMode mode;
-    List<Player *> players;
-    List<Button *> activeButtons;
+    Player players[MAX_PLAYER];
+    Button activeButtons[BUTTON_COUNT];
     bool changed = false;
 
     virtual void setup() {
           // reset states
-          matrix->setAllLow();
+          matrix.setAllLow();
 
           // add players
-          if (players.getSize() < MAX_PLAYER) {
-            players.add(new Player(Color::RED));
-            players.add(new Player(Color::GREEN));
+          for (uint8_t i = 0; i < static_cast<uint8_t>(mode); i++) {
+              players[i] = Player(static_cast<Color>(i));
           }
 
           // TODO show countdown
@@ -77,7 +95,6 @@ class Game {
 
           // activePlayer.startMove();
           // Serial.println("Player " + getPlayerColor(activePlayer.getColor()) + " starts!");
-
           isCurrentlyActive = true;
     };
 
@@ -103,48 +120,47 @@ class Game {
     //     activePlayer.startMove();
     // };
 
-    virtual void reset() {
-        isCurrentlyActive = false;
-        for (int i = 0; i < MAX_PLAYER; i++) {
-            players[i]->reset();
-        }
-        activeButtons.clear();
-        matrix->setAllLow();
-        changed = false;
-        isInMenu = true;
-        Serial.println("Quitting the game ...");
-    };
-
     void update() {
-      List<int> toRemove;
-      matrix->setAllLow();
-      for (int i = 0; i < activeButtons.getSize(); i++) {
-        double remainingTime = activeButtons[i]->getRemainingTime();
+      matrix.setAllLow();
+      for (uint8_t i = 0; activeButtons[i].getPlayer() != -1 && i < BUTTON_COUNT; i++) {
+        double remainingTime = activeButtons[i].getRemainingTime();
         if (remainingTime > 0) {
           // set led for player on
-          matrix->set(players[activeButtons[i]->getPlayer()]->getColor(), activeButtons[i]->getIndex(), HIGH);
+          matrix.set(players[activeButtons[i].getPlayer()].getColor(), activeButtons[i].getIndex(), HIGH);
         } else {
-          // add index 
-          toRemove.add(i);
           // update score
-          players[activeButtons[i]->getPlayer()]->updateScore(-1);
-          // ran out of time for button
-          changed = true;
-          // reset the game
-          reset();
+          players[activeButtons[i].getPlayer()].updateScore(-1);
+          // Game lost
+          if (players[activeButtons[i].getPlayer()].getScore() < 0) {
+            Serial.println("Player " + getPlayerColor(players[activeButtons[i].getPlayer()].getColor()) + " lost!");
+            reset();
+            // since activeButtons get cleared within reset break the loop here
+            break;
+          }
+          int8_t player = activeButtons[i].getPlayer();
+          // remove button
+          activeButtons[i].remove();
+          // add new button
+          addRandomButton(player);
         }
-      }
-      for (int i = 0; i < toRemove.getSize(); i++) {
-        activeButtons.remove(i);
       }
     }
 
-    void addRandomButton(int player, int size) {
-      for (int i = 0; i < size; i++) {
-          int index = rand() % (BUTTON_COUNT - 1);
-          activeButtons.add(new Button(index, player, BUTTON_TIME * (debug * 10)));
-          matrix->set(players[player]->getColor(), index, HIGH);
+    void addRandomButton(int8_t player) {
+      uint8_t buttonIndex = rand() % (BUTTON_COUNT - 1);
+      int8_t arrayIndex = -1;
+      uint8_t counter = 0;
+      while (counter < BUTTON_COUNT) {
+        // find empty button
+        if (activeButtons[counter].getPlayer() == -1 && arrayIndex == -1) {
+          arrayIndex = counter;
+        } else if (activeButtons[counter].getIndex() == buttonIndex) {
+          buttonIndex = rand() % (BUTTON_COUNT - 1);
+          counter = 0;
+        }
+        counter++;
       }
+      activeButtons[arrayIndex] = Button(buttonIndex, player, BUTTON_TIME * (debug * 10));
       changed = true;
     }
 

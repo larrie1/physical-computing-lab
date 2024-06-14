@@ -16,6 +16,7 @@
 #define WRONG_PRESSES_THRESHHOLD 1
 #define SHOW_TIME 1000
 #define BUTTON_TIME 3000
+#define BUTTON_COUNT 16
 
 #define MAX_PLAYER 2
 #define PLAYER_1 0
@@ -54,15 +55,16 @@
 /** ----------- PINS END ----------- */
 
 enum class GameMode {
-    SINGLEPLAYER,
-    MULTIPLAYER
+    SINGLEPLAYER = 1,
+    MULTIPLAYER = 2,
+    UNKNOWN = 3
 };
 
 /** ----------- VARIABLES ----------- */
-extern RgbMatrix<DIMENSION> *matrix;
-extern ShiftIn<REGISTER_COUNT> *shift;
-extern bool debug;
-extern char buttonMap[16];
+extern RgbMatrix<DIMENSION> matrix;
+extern ShiftIn<REGISTER_COUNT> shift;
+extern const bool debug;
+extern const char buttonMap[16];
 extern bool isInMenu;
 /** ----------- VARIABLES END ----------- */
 

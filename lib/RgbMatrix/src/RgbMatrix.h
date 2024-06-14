@@ -151,13 +151,13 @@ class _RgbMatrix {
 			// printBinary(blueShift.state);
 			for (int i = 1; i <= dimension * dimension; i++) {
 				if (redShift.get(i - 1)) {
-					Serial.print(" R ");
+					Serial.print(F(" R "));
 				} else if (greenShift.get(i - 1)) {
-					Serial.print(" G ");
+					Serial.print(F(" G "));
 				} else if (blueShift.get(i - 1)) {
-					Serial.print(" B ");
+					Serial.print(F(" B "));
 				} else {
-					Serial.print(" 0 ");
+					Serial.print(F(" 0 "));
 				}
 
 				// New line
