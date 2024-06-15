@@ -31,8 +31,8 @@ class Game {
             matrix.set(Color::BLUE, i + 4, HIGH);
             matrix.set(Color::BLUE, i + 8, HIGH);
             matrix.set(Color::BLUE, i + 12, HIGH);
-            matrix.write(Color::BLUE, true);
-            delay(1000);
+            matrix.write(Color::BLUE, false);
+            delay(1000 * !debug);
           }
 
           isCurrentlyActive = true;
@@ -44,9 +44,9 @@ class Game {
         update();
 
         // write current state to matrix and update players
-        for (uint8_t i = 0; (i < sizeof(players) / sizeof(players[0])) && changed; i++) {
+        for (uint8_t i = 0; i < MAX_PLAYER && changed; i++) {
           // just updated the led's
-          if (i == (sizeof(players) / sizeof(players[0])) - 1) {
+          if (i == MAX_PLAYER - 1) {
             changed = false;
           }
           matrix.write(players[i].getColor(), !changed);
@@ -54,9 +54,9 @@ class Game {
     }
 
     void reset() {
-      int bestPlayer = 0;
+      int8_t bestPlayer = 0;
       // read current highscore
-      int highscore = EEPROM.read(highscoreAdress);
+      int8_t highscore = EEPROM.read(highscoreAdress);
       if (players[0].getScore() > players[1].getScore()) {
         // first player won
         bestPlayer = 0;
@@ -77,13 +77,13 @@ class Game {
       // handle new highscore
       if (players[bestPlayer].getScore() > highscore) {
         EEPROM.write(highscoreAdress, players[bestPlayer].getScore());
-        Serial.print("New highscore for Game ");
-        highscoreAdress == 0 ? Serial.print("WhackAMole") : Serial.print("Remember");
+        Serial.print(F("New highscore for Game "));
+        highscoreAdress == 0 ? Serial.print(F("WhackAMole")) : Serial.print(F("Remember"));
         Serial.println(": " + String(players[bestPlayer].getScore()));
       }
 
       // reset players
-      for (uint8_t i = 0; i < sizeof(players) / sizeof(players[0]) && players[i].getScore() != 0; i++) {
+      for (uint8_t i = 0; i < MAX_PLAYER && players[i].getScore() != 0; i++) {
         players[i].reset();
       }
           
@@ -93,6 +93,7 @@ class Game {
       }
 
       isCurrentlyActive = false;
+      level = 1;
       matrix.setAllLow();
       changed = false;
       isInMenu = true;

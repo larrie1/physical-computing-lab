@@ -29,6 +29,9 @@ class Remember : public Game {
           // call super method
           Game::setup(mode, highscoreAdress);
           this->mode = mode;
+          index = 0;
+          player = 0;
+          state = RememberState::SHOWING;
 
           // set all sequence values to -1
           for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
@@ -87,6 +90,10 @@ class Remember : public Game {
                         index++;
                     } else {
                         Game::players[player].updateScore(-1);
+                        if (Game::players[player].getScore() < 0) {
+                            Serial.println("Player " + getPlayerColor(players[player].getColor()) + " lost!");
+                            Game::reset();
+                        }
                         matrix.set(Color::RED, button, HIGH);
                     }
                     matrix.write(correct ? Color::GREEN : Color::RED, true);

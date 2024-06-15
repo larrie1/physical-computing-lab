@@ -32,7 +32,7 @@ void setup() {
         uint8_t color = random(0, 3);
         matrix.set(static_cast<Color>(color), i, HIGH);
         matrix.write(static_cast<Color>(color), false);
-        delay(500);
+        delay(500 * !debug);
     }
 
     if (!debug) {
@@ -79,6 +79,9 @@ void setup() {
         Serial.println(F("#################################################"));
         Serial.println();
     }
+
+    // Set random seed
+    randomSeed(analogRead(A0));
 }
 
 void loop() {
@@ -111,7 +114,7 @@ void loop() {
         // Start Game
         if ((debug && input == buttonMap[0]) || shift.pressed(0)) {
             Serial.println("Starting " + games[gameIndex].name + "...");
-            games[gameIndex].game->setup(games[gameIndex].mode, gameIndex / 2);
+            games[gameIndex].game->setup(games[gameIndex].mode, gameIndex > 1 ? 1 : 0);
         }
     }
 }
