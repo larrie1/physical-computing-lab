@@ -40,23 +40,11 @@ class Remember : public Game {
         }
 
         void loop() override {
-            // start player move and player time, write data every frame
-            Game::loop();
-
-            if (Game::isActive()) {
-                if (state == RememberState::SHOWING) {
-                    show();
-                } else {
-                    // check if button is pressed
-                    if (!debug && shift.update()) {
-                        onPress();
-                    } else {
-                        // debug mode
-                        if (Serial.available() > 0) {
-                            onPress(Serial.read());
-                        }
-                    }
-                }
+            if (state == RememberState::SHOWING) {
+                show();
+            } else {
+                // write data and check inputs
+                Game::loop();
             }
         }
 
@@ -72,10 +60,12 @@ class Remember : public Game {
                 // remove button after 1 second
                 matrix.setAllLow();
             }
+            matrix.writeAll();
+            changed = false;
             state = RememberState::REMEMBER;
         }
 
-        void onPress(char input = '%') {
+        void onPress(char input = '%') override {
             bool correct = false;
             // iterate over all active buttons
             for (uint8_t button = 0; button < BUTTON_COUNT; button++) {
@@ -96,7 +86,7 @@ class Remember : public Game {
                         }
                         matrix.set(Color::RED, button, HIGH);
                     }
-                    matrix.write(correct ? Color::GREEN : Color::RED, true);
+                    matrix.write(correct ? Color::GREEN : Color::RED, false);
                     delay(500);
                     matrix.setAllLow();
                     break;
@@ -108,6 +98,7 @@ class Remember : public Game {
                 Game::players[player].updateScore(1);
                 index = 0;
                 state = RememberState::SHOWING;
+                changed = true;
                 // next player
                 if (mode == GameMode::MULTIPLAYER) {
                     player = player == 0 ? 1 : 0;

@@ -27,14 +27,6 @@ static GameStruct games[GAMES] = {
 void setup() {
     Serial.begin(115200);
 
-    // Print welcome message
-    for (int i = 0; i < BUTTON_COUNT; i++) {
-        uint8_t color = random(0, 3);
-        matrix.set(static_cast<Color>(color), i, HIGH);
-        matrix.write(static_cast<Color>(color), false);
-        delay(500 * !debug);
-    }
-
     if (!debug) {
         // Button initialization
         shift.begin(
@@ -80,25 +72,32 @@ void setup() {
         Serial.println();
     }
 
+    matrix.writeAllLow();
+
+    // Print welcome message
+    for (int i = 0; i < BUTTON_COUNT; i++) {
+        uint8_t color = random(0, 3);
+        matrix.set(static_cast<Color>(color), i, HIGH);
+        matrix.write(static_cast<Color>(color), false);
+        delay(500 * !debug);
+    }
+
+    matrix.writeAllLow();
+
     // Set random seed
     randomSeed(analogRead(A0));
 }
 
 void loop() {
-    // Read input
-    if (debug && Serial.available() > 0) {
-        input = Serial.read();
-    } else if (debug) {
-        input = '%';
-    }
-
-    if (games[gameIndex].game->isActive() == true && ((shift.pressed(0) && shift.pressed(1) && shift.pressed(2) && shift.pressed(3)) || (debug && input == 32))) {
-        // Reset game
-        games[gameIndex].game->reset();
-    } else if (games[gameIndex].game->isActive()) {
+    if (games[gameIndex].game->isActive()) {
         // Keep game running
         games[gameIndex].game->loop();
     } else {
+        // Read input
+        if (debug && Serial.available() > 0) {
+            input = Serial.read();
+        }
+
         // Menu
         if (isInMenu) {
             Serial.println("Do you want to play " + games[gameIndex].name + "? (1) Start, (2) Next");
@@ -106,15 +105,18 @@ void loop() {
         }
 
         // Mode Selection
-        if ((debug && input == buttonMap[1]) || shift.pressed(1)) {
+        if (input == buttonMap[1] || shift.pressed(1)) {
             gameIndex = (gameIndex + 1) % GAMES;
             isInMenu = true;
         }
 
         // Start Game
-        if ((debug && input == buttonMap[0]) || shift.pressed(0)) {
+        if (input == buttonMap[0] || shift.pressed(0)) {
             Serial.println("Starting " + games[gameIndex].name + "...");
             games[gameIndex].game->setup(games[gameIndex].mode, gameIndex > 1 ? 1 : 0);
         }
+
+        // reset input
+        input = '%';
     }
 }

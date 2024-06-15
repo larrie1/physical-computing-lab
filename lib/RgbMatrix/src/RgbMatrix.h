@@ -62,34 +62,18 @@ class _RgbMatrix {
 			blueShift.setAllLow();
 		}
 
-		void flashWrite(Color color, int durationMilliseconds, int index = -1) {
-			if (index != -1) {
-				set(color, index, HIGH);
-				write(color);
-			} else {
-				setAllHigh(color);
-				write(color);
-			}
-
-			delay(durationMilliseconds);
-			write(color);
+		void writeAllLow() {
+			setAllLow();
+			writeAll();
 		}
 
-		void setAllHigh(Color color) {
-			switch (color) {
-				case Color::RED:
-					redShift.setAllHigh();
-					break;
-				case Color::GREEN:
-					greenShift.setAllHigh();
-					break;
-				case Color::BLUE:
-					blueShift.setAllHigh();
-					break;
+		void writeAll(bool print = false) {
+			redShift.write();
+			greenShift.write();
+			blueShift.write();
 
-				default:
-					setAllLow();
-					break;
+			if (print) {
+				this->print();
 			}
 		}
 

@@ -12,6 +12,8 @@
 
 class WhackAMole : public Game {
     private:
+        void loop() override { Game::loop(); }
+
         void setup(GameMode mode, uint8_t highscoreAdress) override {
           // call super method
           Game::setup(mode, highscoreAdress);
@@ -22,26 +24,9 @@ class WhackAMole : public Game {
           }
         }
 
-        void loop() override {
-            // start player move and player time, write data every frame
-            Game::loop();
-
-            if (Game::isActive()) {
-                // check if button is pressed
-                if (!debug && shift.update()) {
-                  onPress();
-                } else {
-                  // debug mode
-                  if (Serial.available() > 0) {
-                    onPress(Serial.read());
-                  }
-                }
-            }
-        }
-
-        void onPress(char input = '%') {
+        void onPress(char input = '%') override {
           // iterate over all player when nothing changed yet
-          for (uint8_t player = 0; player < sizeof(Game::players) / sizeof(Game::players[0]) && !changed; player++) {
+          for (uint8_t player = 0; player < MAX_PLAYER && !changed; player++) {
             // iterate over all active buttons
             for (uint8_t button = 0; Game::activeButtons[button].getPlayer() != -1 && button < BUTTON_COUNT; button++) {
               // Take button when it belongs to the correct player
