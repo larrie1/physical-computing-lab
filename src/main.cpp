@@ -27,6 +27,14 @@ static GameStruct games[GAMES] = {
 void setup() {
     Serial.begin(115200);
 
+    // Print welcome message
+    for (int i = 0; i < BUTTON_COUNT; i++) {
+        uint8_t color = random(0, 3);
+        matrix.set(static_cast<Color>(color), i, HIGH);
+        matrix.write(static_cast<Color>(color), false);
+        delay(500);
+    }
+
     if (!debug) {
         // Button initialization
         shift.begin(
@@ -81,7 +89,7 @@ void loop() {
         input = '%';
     }
 
-    if ((shift.pressed(0) && shift.pressed(1) && shift.pressed(2) && shift.pressed(3)) || (debug && input == 32)) {
+    if (games[gameIndex].game->isActive() == true && ((shift.pressed(0) && shift.pressed(1) && shift.pressed(2) && shift.pressed(3)) || (debug && input == 32))) {
         // Reset game
         games[gameIndex].game->reset();
     } else if (games[gameIndex].game->isActive()) {
@@ -103,7 +111,7 @@ void loop() {
         // Start Game
         if ((debug && input == buttonMap[0]) || shift.pressed(0)) {
             Serial.println("Starting " + games[gameIndex].name + "...");
-            games[gameIndex].game->setup(games[gameIndex].mode);
+            games[gameIndex].game->setup(games[gameIndex].mode, gameIndex / 2);
         }
     }
 }

@@ -18,78 +18,99 @@ enum class RememberState {
 };
 
 class Remember : public Game {
-    public:
+    private:
+        RememberState state = RememberState::SHOWING;
+        GameMode mode = GameMode::UNKNOWN;
+        uint8_t player = 0;
+        int8_t sequence[50];
+        uint8_t index = 0;
 
-    //     void start() override {
-    //         // start player move and player time
-    //         Game::loop();
+        void setup(GameMode mode, uint8_t highscoreAdress) override {
+          // call super method
+          Game::setup(mode, highscoreAdress);
+          this->mode = mode;
 
-    //         if (state == RememberState::SHOWING) {
-    //             // stop player watch
-    //             Game::getActivePlayer().stopMove();
-    //             // show button pattern
-    //             showLevel();
-    //             // start player watch
-    //             Game::getActivePlayer().startMove();
-    //         } 
+          // set all sequence values to -1
+          for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
+              sequence[i] = -1;
+          }
+        }
 
-    //         if (state == RememberState::REMEMBER) {
-    //             // check if button is pressed
-    //             if (shift->update()) {
-    //                 onButtonPress();
-    //             }
-    //         }
-    //     }
+        void loop() override {
+            // start player move and player time, write data every frame
+            Game::loop();
 
-    // private:
-    //     int wrongPressed = 0;
-    //     RememberState state = RememberState::SHOWING;
+            if (Game::isActive()) {
+                if (state == RememberState::SHOWING) {
+                    show();
+                } else {
+                    // check if button is pressed
+                    if (!debug && shift.update()) {
+                        onPress();
+                    } else {
+                        // debug mode
+                        if (Serial.available() > 0) {
+                            onPress(Serial.read());
+                        }
+                    }
+                }
+            }
+        }
 
-    //     void showLevel() {
-    //         for (int i = 0; i < level; i++) {
-    //             int index = rand() % (BUTTON_COUNT - 1);
-    //             activeButtons.add(index);
+        void show() {
+            for (int i = 0; i < level; i++) {
+                uint8_t index = random(0, BUTTON_COUNT);
+                // show button for 1 second
+                matrix.set(Color::BLUE, index, HIGH);
+                matrix.write(Color::BLUE, true);
+                // add button to sequence
+                sequence[i] = index;
+                delay(1000);
+                // remove button after 1 second
+                matrix.setAllLow();
+            }
+            state = RememberState::REMEMBER;
+        }
 
-    //             matrix->set(Game::getActivePlayer().getColor(), index, HIGH);
-    //             matrix->write(Game::getActivePlayer().getColor());
-    //             delay(SHOW_TIME);
-    //             matrix->setAllLow();
-    //             matrix->write(Game::getActivePlayer().getColor());
-    //         }
-    //         // next state 
-    //         state = RememberState::REMEMBER;
-    //     }
+        void onPress(char input = '%') {
+            bool correct = false;
+            // iterate over all active buttons
+            for (uint8_t button = 0; button < BUTTON_COUNT; button++) {
+                // take button if it is pressed
+                if (shift.pressed(button) || input == buttonMap[button]) {
+                    // check if button is the correct in sequence
+                    if (button == sequence[index]) {
+                        correct = true;
+                        matrix.set(Color::GREEN, button, HIGH);
+                        // remove pressed button
+                        sequence[index] = -1;
+                        index++;
+                    } else {
+                        Game::players[player].updateScore(-1);
+                        matrix.set(Color::RED, button, HIGH);
+                    }
+                    matrix.write(correct ? Color::GREEN : Color::RED, true);
+                    delay(500);
+                    matrix.setAllLow();
+                    break;
+                }
+            }
 
-    //     void onButtonPress() {
-    //         if (shift->pressed(activeButtons[activeButtons.getSize() - 1])) {
-    //             wrongPressed = 0;
-    //             // turn led green
-    //             matrix->flashWrite(Color::GREEN, SHOW_TIME, activeButtons[activeButtons.getSize() - 1]);
-
-    //             activeButtons.removeLast();
-    //         } else {
-    //             wrongPressed++;
-    //             Game::getActivePlayer().updateScore(-1);
-    //             if (wrongPressed > WRONG_PRESSES_THRESHHOLD) {
-    //                 Game::reset();
-    //                 // TODO next player or next player won
-    //             }
-    //         }
-
-    //         if (activeButtons.getSize() == 0) {
-    //             // flash all leds green
-    //             matrix->flashWrite(Color::GREEN, SHOW_TIME);
-
-    //             level++;
-    //             Game::getActivePlayer().updateScore(1);
-
-    //             if (mode == GameMode::MULTIPLAYER) {
-    //                 Game::nextPlayer();
-    //             }
-
-    //             state = RememberState::SHOWING;
-    //         }
-    //     }
+            // check if all buttons were pressed
+            if (sequence[level - 1] == -1) {
+                Game::players[player].updateScore(1);
+                index = 0;
+                state = RememberState::SHOWING;
+                // next player
+                if (mode == GameMode::MULTIPLAYER) {
+                    player = player == 0 ? 1 : 0;
+                }
+                // next level if all player did their move
+                if (player == 0) {
+                    level++;
+                }
+            }
+        }
 };
 
 #endif

@@ -163,6 +163,9 @@ class _RgbMatrix {
 				// New line
 				if (i % dimension == 0) {
 					Serial.println();
+				} 
+				if (i == dimension * dimension) {
+					Serial.println();
 				}
 			}
 		}

@@ -16,7 +16,7 @@ class Game {
   public:
     inline bool isActive() { return isCurrentlyActive; }
 
-    virtual void setup(GameMode mode) {
+    virtual void setup(GameMode mode, uint8_t highscoreAdress) {
           // reset states
           matrix.setAllLow();
 
@@ -25,13 +25,18 @@ class Game {
               players[i] = Player(static_cast<Color>(i));
           }
 
-          // TODO show countdown
-          // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I
-          // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I
-          // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I
-          // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I
+          // start animation
+          for (uint8_t i = 0; i < DIMENSION; i++) {
+            matrix.set(Color::BLUE, i, HIGH);
+            matrix.set(Color::BLUE, i + 4, HIGH);
+            matrix.set(Color::BLUE, i + 8, HIGH);
+            matrix.set(Color::BLUE, i + 12, HIGH);
+            matrix.write(Color::BLUE, true);
+            delay(1000);
+          }
 
           isCurrentlyActive = true;
+          this->highscoreAdress = highscoreAdress;
     }
 
     virtual void loop() {
@@ -49,19 +54,49 @@ class Game {
     }
 
     void reset() {
-          for (uint8_t i = 0; i < sizeof(players) / sizeof(players[0]); i++) {
-              players[i].reset();
-          }
-          
-          for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
-              activeButtons[i].remove();
-          }
+      int bestPlayer = 0;
+      // read current highscore
+      int highscore = EEPROM.read(highscoreAdress);
+      if (players[0].getScore() > players[1].getScore()) {
+        // first player won
+        bestPlayer = 0;
+      } else if (players[0].getScore() < players[1].getScore()) {
+        // second player won
+        bestPlayer = 1;
+      } else if (players[0].getScore() == players[1].getScore() && players[1].getColor() != players[0].getColor()) {
+        // draw
+        bestPlayer = -1;
+      }
 
-          isCurrentlyActive = false;
-          matrix.setAllLow();
-          changed = false;
-          isInMenu = true;
-          Serial.println(F("Quitting the game ..."));
+      if (bestPlayer != -1) {
+        Serial.println("Player " + getPlayerColor(players[bestPlayer].getColor()) + " won with a score of " + String(players[bestPlayer].getScore()) + "!");
+      } else {
+        Serial.println("It's a draw! Both players have a score of " + String(players[0].getScore()) + "!");
+      }
+
+      // handle new highscore
+      if (players[bestPlayer].getScore() > highscore) {
+        EEPROM.write(highscoreAdress, players[bestPlayer].getScore());
+        Serial.print("New highscore for Game ");
+        highscoreAdress == 0 ? Serial.print("WhackAMole") : Serial.print("Remember");
+        Serial.println(": " + String(players[bestPlayer].getScore()));
+      }
+
+      // reset players
+      for (uint8_t i = 0; i < sizeof(players) / sizeof(players[0]) && players[i].getScore() != 0; i++) {
+        players[i].reset();
+      }
+          
+      // reset buttons
+      for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
+          activeButtons[i].remove();
+      }
+
+      isCurrentlyActive = false;
+      matrix.setAllLow();
+      changed = false;
+      isInMenu = true;
+      Serial.println(F("Quitting the game ..."));
     }
 
   protected:
@@ -69,14 +104,6 @@ class Game {
     Button activeButtons[BUTTON_COUNT];
     uint8_t level = 1;
     bool changed = false;
-
-    void pause() {
-        // TODO show pause icon
-        // I 0 0 I
-        // I 0 0 I
-        // I 0 0 I
-        // I 0 0 I
-    }
 
     void update() {
       matrix.setAllLow();
@@ -104,7 +131,7 @@ class Game {
       }
     }
 
-    void addRandomButton(int8_t player) {
+    void addRandomButton(int8_t player, long time = BUTTON_TIME) {
       uint8_t buttonIndex = rand() % (BUTTON_COUNT - 1);
       int8_t arrayIndex = -1;
       uint8_t counter = 0;
@@ -113,17 +140,18 @@ class Game {
         if (activeButtons[counter].getPlayer() == -1 && arrayIndex == -1) {
           arrayIndex = counter;
         } else if (activeButtons[counter].getIndex() == buttonIndex) {
-          buttonIndex = rand() % (BUTTON_COUNT - 1);
+          buttonIndex = random(0, BUTTON_COUNT);
           counter = 0;
         }
         counter++;
       }
-      activeButtons[arrayIndex] = Button(buttonIndex, player, BUTTON_TIME * (debug * 10));
+      activeButtons[arrayIndex] = Button(buttonIndex, player, time * (debug * 10));
       changed = true;
     }
 
   private:
     bool isCurrentlyActive = false;
+    uint8_t highscoreAdress = 0;
 };
 
 #endif

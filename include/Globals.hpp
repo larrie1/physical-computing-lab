@@ -10,6 +10,7 @@
 #include <Arduino.h>
 #include <ShiftIn.h>
 #include <RgbMatrix.h>
+#include <EEPROM.h>
 
 /** ----------- PINS ----------- */
 // Buttons

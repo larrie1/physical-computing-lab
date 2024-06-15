@@ -12,9 +12,9 @@
 
 class WhackAMole : public Game {
     private:
-        void setup(GameMode mode) override {
+        void setup(GameMode mode, uint8_t highscoreAdress) override {
           // call super method
-          Game::setup(mode);
+          Game::setup(mode, highscoreAdress);
 
           for (uint8_t player = 0; player < static_cast<uint8_t>(mode); player++) {
             // add random button to each player
