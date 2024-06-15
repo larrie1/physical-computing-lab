@@ -19,7 +19,6 @@ enum class RememberState {
 
 class Remember : public Game {
     public:
-        Remember(GameMode mode) : Game(1, mode) {}
 
     //     void start() override {
     //         // start player move and player time

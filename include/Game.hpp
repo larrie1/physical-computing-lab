@@ -8,64 +8,15 @@
 #define Game_hpp
 
 #include <Player.hpp>
-#include <Stopwatch.h>
-#include <ShiftIn.h>
-#include <RgbMatrix.h>
 #include <Arduino.h>
 #include <Globals.hpp>
 #include <Button.hpp>
 
 class Game {
   public:
-    // Default constructor
-    Game() : level(-1), mode(GameMode::UNKNOWN) {}
+    inline bool isActive() { return isCurrentlyActive; }
 
-    Game(uint8_t level, GameMode mode) : level(level), mode(mode) {}
-
-    bool isActive() { return isCurrentlyActive;};
-
-    virtual void loop() {
-        if (!isCurrentlyActive) {
-            setup();
-        }
-
-        // update button list 
-        update();
-
-        // write current state to matrix and update players
-        for (uint8_t i = 0; i < static_cast<uint8_t>(mode) && changed; i++) {
-          // just updated the led's
-          if (i == static_cast<uint8_t>(mode) - 1) {
-            changed = false;
-          }
-          matrix.write(players[i].getColor(), !changed);
-        }
-    };
-
-    virtual void reset() {
-        isCurrentlyActive = false;
-        for (uint8_t i = 0; i < static_cast<uint8_t>(mode); i++) {
-            players[i].reset();
-        }
-        
-        for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
-            activeButtons[i].remove();
-        }
-
-        matrix.setAllLow();
-        changed = false;
-        isInMenu = true;
-        Serial.println(F("Quitting the game ..."));
-    };
-
-  protected:
-    uint8_t level;
-    GameMode mode;
-    Player players[MAX_PLAYER];
-    Button activeButtons[BUTTON_COUNT];
-    bool changed = false;
-
-    virtual void setup() {
+    virtual void setup(GameMode mode) {
           // reset states
           matrix.setAllLow();
 
@@ -81,7 +32,43 @@ class Game {
           // I 0 0 0 -> I I 0 0 -> I I I 0 -> I I I I
 
           isCurrentlyActive = true;
-    };
+    }
+
+    virtual void loop() {
+        // update button list 
+        update();
+
+        // write current state to matrix and update players
+        for (uint8_t i = 0; (i < sizeof(players) / sizeof(players[0])) && changed; i++) {
+          // just updated the led's
+          if (i == (sizeof(players) / sizeof(players[0])) - 1) {
+            changed = false;
+          }
+          matrix.write(players[i].getColor(), !changed);
+        }
+    }
+
+    void reset() {
+          for (uint8_t i = 0; i < sizeof(players) / sizeof(players[0]); i++) {
+              players[i].reset();
+          }
+          
+          for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
+              activeButtons[i].remove();
+          }
+
+          isCurrentlyActive = false;
+          matrix.setAllLow();
+          changed = false;
+          isInMenu = true;
+          Serial.println(F("Quitting the game ..."));
+    }
+
+  protected:
+    Player players[MAX_PLAYER];
+    Button activeButtons[BUTTON_COUNT];
+    uint8_t level = 1;
+    bool changed = false;
 
     void pause() {
         // TODO show pause icon

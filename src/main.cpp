@@ -4,55 +4,30 @@
 #include <Arduino.h>
 #include <Globals.hpp>
 
-// Register
-RgbMatrix<DIMENSION> matrix = RgbMatrix<DIMENSION>();
-ShiftIn<REGISTER_COUNT> shift = ShiftIn<REGISTER_COUNT>();
+// Game selection
+struct GameStruct {
+    Game *game;
+    String name;
+    GameMode mode;
+};
 
 // constants
-Game* games[GAMES];
-WhackAMole whackamole_singleplayer = WhackAMole(GameMode::SINGLEPLAYER);
-WhackAMole whackamole_multiplayer = WhackAMole(GameMode::MULTIPLAYER);
-Remember remember_singleplayer = Remember(GameMode::SINGLEPLAYER); 
-Remember remember_multiplayer = Remember(GameMode::MULTIPLAYER);
-uint8_t gameIndex = 0;
-bool isInMenu = true;
+static WhackAMole whackamole;
+static Remember remember;
+static uint8_t gameIndex = 0;
+static char input = '%';
 
-// debug 
-const bool debug = true;
-const char buttonMap[16] = {'1', '2', '3', '4', 'q', 'w', 'e', 'r', 'a', 's', 'd', 'f', 'y', 'x', 'c', 'v'};
-
-String getGameName(uint8_t index) {
-    switch (index) {
-        case 0:
-            return "WhackAMole Singleplayer";
-        case 1:
-            return "WhackAMole Multiplayer";
-        case 2:
-            return "Remember Singleplayer";
-        case 3:
-            return "Remember Multiplayer";
-        default:
-            return "Unknown";
-    }
-}
+static GameStruct games[GAMES] = {
+    { &whackamole, "WhackAMole Singleplayer", GameMode::SINGLEPLAYER },
+    { &whackamole, "WhackAMole Multiplayer", GameMode::MULTIPLAYER },
+    { &remember, "Remember Singleplayer", GameMode::SINGLEPLAYER },
+    { &remember, "Remember Multiplayer", GameMode::MULTIPLAYER }
+};
 
 void setup() {
-    Serial.begin(9600);
+    Serial.begin(115200);
 
     if (!debug) {
-        Serial.println();
-        Serial.println(F("#################################################"));
-        Serial.println(F("#           Matrix Game Console                 #"));
-        Serial.println(F("#          Created by GridGurus                 #"));
-        Serial.println(F("#                                               #"));      
-        Serial.println(F("# Available Games:                              #"));
-        Serial.println(F("#       - Whack-A-Mole Singleplayer             #"));
-        Serial.println(F("#       - Whack-A-Mole Multiplayer              #"));
-        Serial.println(F("#       - Remember Singleplayer                 #"));
-        Serial.println(F("#       - Remember Multiplayer                  #"));
-        Serial.println(F("#################################################"));
-        Serial.println();
-
         // Button initialization
         shift.begin(
             BUTTON_LOAD_PIN, 
@@ -71,6 +46,19 @@ void setup() {
             BLUE_DATA_PIN,
             CLOCK_PIN
         );
+
+        Serial.println();
+        Serial.println(F("#################################################"));
+        Serial.println(F("#           Matrix Game Console                 #"));
+        Serial.println(F("#          Created by GridGurus                 #"));
+        Serial.println(F("#                                               #"));      
+        Serial.println(F("# Available Games:                              #"));
+        Serial.println(F("#       - Whack-A-Mole Singleplayer             #"));
+        Serial.println(F("#       - Whack-A-Mole Multiplayer              #"));
+        Serial.println(F("#       - Remember Singleplayer                 #"));
+        Serial.println(F("#       - Remember Multiplayer                  #"));
+        Serial.println(F("#################################################"));
+        Serial.println();
     } else {
         Serial.println();
         Serial.println(F("#################################################"));
@@ -83,64 +71,39 @@ void setup() {
         Serial.println(F("#################################################"));
         Serial.println();
     }
-
-    // add games
-    for (uint8_t game = 0; game < GAMES; game++) {
-        switch (game) {
-            case 0:
-                games[game] = &whackamole_singleplayer;
-                break;
-            case 1:
-                games[game] = &whackamole_multiplayer;
-                break;
-            case 2:
-                games[game] = &remember_singleplayer;
-                break;
-            case 3:
-                games[game] = &remember_multiplayer;
-                break;
-            
-            default:
-                break;
-        }
-    }
 }
 
 void loop() {
-    if (isInMenu) {
-        Serial.println("Do you want to play " + getGameName(gameIndex) + "? (1) Start, (2) Next");
-        isInMenu = false;
-    }
-
-    // stop game
-    if ((shift.pressed(0) && shift.pressed(1) && shift.pressed(2) && shift.pressed(3)) || debug && Serial.available() > 0 && Serial.read() == 32) {
-        games[gameIndex]->reset();
-    }
-
-    if (games[gameIndex]->isActive()) {
-        games[gameIndex]->loop();
+    // Read input
+    if (debug && Serial.available() > 0) {
+        input = Serial.read();
     } else if (debug) {
-        if (Serial.available() > 0) {
-            char input = Serial.read();
-            if (input == buttonMap[0]) {
-                Serial.println("Starting " + getGameName(gameIndex) + "...");
-                games[gameIndex]->loop();
-            } else if (input == buttonMap[1]) {
-                gameIndex = (gameIndex + 1) % GAMES;
-                isInMenu = true;
-            }
-        }
+        input = '%';
+    }
+
+    if ((shift.pressed(0) && shift.pressed(1) && shift.pressed(2) && shift.pressed(3)) || (debug && input == 32)) {
+        // Reset game
+        games[gameIndex].game->reset();
+    } else if (games[gameIndex].game->isActive()) {
+        // Keep game running
+        games[gameIndex].game->loop();
     } else {
+        // Menu
+        if (isInMenu) {
+            Serial.println("Do you want to play " + games[gameIndex].name + "? (1) Start, (2) Next");
+            isInMenu = false;
+        }
+
         // Mode Selection
-        if ((shift.pressed(1))) {
+        if ((debug && input == buttonMap[1]) || shift.pressed(1)) {
             gameIndex = (gameIndex + 1) % GAMES;
             isInMenu = true;
         }
 
-        // Start/Pause Game
-        if (shift.pressed(0)) {
-            Serial.println("Starting " + getGameName(gameIndex) + "...");
-            games[gameIndex]->loop();
+        // Start Game
+        if ((debug && input == buttonMap[0]) || shift.pressed(0)) {
+            Serial.println("Starting " + games[gameIndex].name + "...");
+            games[gameIndex].game->setup(games[gameIndex].mode);
         }
     }
 }

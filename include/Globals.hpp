@@ -11,37 +11,7 @@
 #include <ShiftIn.h>
 #include <RgbMatrix.h>
 
-/** ----------- CONSTANS ----------- */
-#define START_TIME 300000 // 5min in ms
-#define WRONG_PRESSES_THRESHHOLD 1
-#define SHOW_TIME 1000
-#define BUTTON_TIME 3000
-#define BUTTON_COUNT 16
-
-#define MAX_PLAYER 2
-#define PLAYER_1 0
-#define PLAYER_2 1
-#define GAMES 4 // WhackAMole Singleplayer, WhackAMole Multiplayer, Remember Singleplayer, Remember Multiplayer
-#define DIMENSION 4
-#define REGISTER_COUNT 2
-#define BUTTON_COUNT 16
-/** ----------- CONSTANS END ----------- */
-
-
-/** ----------- VARIABLES ----------- */
-extern RgbMatrix<DIMENSION> matrix;
-extern ShiftIn<REGISTER_COUNT> shift;
-extern const bool debug;
-extern const char buttonMap[16];
-extern bool isInMenu;
-/** ----------- VARIABLES END ----------- */
-
-
 /** ----------- PINS ----------- */
-#define START_BUTTON_PIN  1
-#define MODE_BUTTON_PIN 2
-#define BUTTON_COUNT 16
-
 // Buttons
 #define BUTTON_LOAD_PIN 1
 #define BUTTON_CLOCK_ENABLE_PIN 2
@@ -63,6 +33,25 @@ extern bool isInMenu;
 // Clock
 #define CLOCK_PIN 6
 /** ----------- PINS END ----------- */
+
+
+/** ----------- CONSTANS ----------- */
+const long START_TIME = 300000L; // 5min in ms
+const int SHOW_TIME = 1000;
+const int BUTTON_TIME = 3000;
+const int MAX_PLAYER = 2;
+const int GAMES = 4; // WhackAMole Singleplayer, WhackAMole Multiplayer, Remember Singleplayer, Remember Multiplayer
+const int DIMENSION = 4;
+const int REGISTER_COUNT = 2;
+const int BUTTON_COUNT = 16;
+const bool debug = true;
+const char buttonMap[BUTTON_COUNT] = {'1', '2', '3', '4', 'q', 'w', 'e', 'r', 'a', 's', 'd', 'f', 'y', 'x', 'c', 'v'};
+
+// non constants
+RgbMatrix<DIMENSION> matrix = RgbMatrix<DIMENSION>();
+ShiftIn<REGISTER_COUNT> shift = ShiftIn<REGISTER_COUNT>();
+bool isInMenu = true;
+/** ----------- CONSTANS END ----------- */
 
 
 /** ----------- ENUMS ----------- */

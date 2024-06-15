@@ -8,9 +8,7 @@
 #define Button_hpp
 
 #include <Stopwatch.h>
-#include <RgbMatrix.h>
 #include <Arduino.h>
-#include <Globals.hpp>
 
 class Button {
   public:

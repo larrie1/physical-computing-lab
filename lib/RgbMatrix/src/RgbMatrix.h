@@ -9,7 +9,7 @@
 #include <Arduino.h>
 #include "ShiftOut.h"
 
-#define REGISTER_COUNT 2
+#define REGISTER 2
 
 enum class Color {
   RED,
@@ -20,9 +20,9 @@ enum class Color {
 template<int dimension>
 class _RgbMatrix {
 	private:
-		ShiftOut<REGISTER_COUNT> redShift;
-		ShiftOut<REGISTER_COUNT> blueShift;
-		ShiftOut<REGISTER_COUNT> greenShift;
+		ShiftOut<REGISTER> redShift;
+		ShiftOut<REGISTER> blueShift;
+		ShiftOut<REGISTER> greenShift;
 
 	public:
 		_RgbMatrix() {}

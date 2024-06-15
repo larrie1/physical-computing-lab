@@ -8,14 +8,19 @@
 #define WhackAMole_hpp
 
 #include <Game.hpp>
-#include <ShiftIn.h>
-#include <RgbMatrix.h>
 #include <Arduino.h>
-#include <Globals.hpp>
 
 class WhackAMole : public Game {
-    public:
-        WhackAMole(GameMode mode) : Game(1, mode) {}
+    private:
+        void setup(GameMode mode) override {
+          // call super method
+          Game::setup(mode);
+
+          for (uint8_t player = 0; player < static_cast<uint8_t>(mode); player++) {
+            // add random button to each player
+            Game::addRandomButton(player);
+          }
+        }
 
         void loop() override {
             // start player move and player time, write data every frame
@@ -34,20 +39,9 @@ class WhackAMole : public Game {
             }
         }
 
-    private:
-        void setup() override {
-          // call super method
-          Game::setup();
-
-          for (uint8_t player = 0; player < static_cast<uint8_t>(mode); player++) {
-            // add random button to each player
-            Game::addRandomButton(player);
-          }
-        }
-
         void onPress(char input = '%') {
           // iterate over all player when nothing changed yet
-          for (uint8_t player = 0; player < static_cast<uint8_t>(mode) && !changed; player++) {
+          for (uint8_t player = 0; player < sizeof(Game::players) / sizeof(Game::players[0]) && !changed; player++) {
             // iterate over all active buttons
             for (uint8_t button = 0; Game::activeButtons[button].getPlayer() != -1 && button < BUTTON_COUNT; button++) {
               // Take button when it belongs to the correct player
