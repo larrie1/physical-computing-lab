@@ -43,13 +43,15 @@ class Game {
     }
 
     virtual void loop() {
-        // update button list 
-        double time = update();
+      lcd.multiPlayerScreen();
+      // update button list
+      double time = update();
 
-        // write current state to matrix
-        if (changed) {
-          matrix.writeAll(true);
-          changed = false;
+      // write current state to matrix
+      if (changed)
+      {
+        matrix.writeAll(true);
+        changed = false;
         }
 
         double start = millis();
@@ -140,6 +142,8 @@ class Game {
       matrix.writeAllLow();
       changed = false;
       isInMenu = true;
+      lcd.gameSelect();
+      lcd.blink();
       Serial.println(F("Quitting the game ..."));
     }
 

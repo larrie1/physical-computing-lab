@@ -11,6 +11,7 @@
 #include <ShiftIn.h>
 #include <RgbMatrix.h>
 #include <EEPROM.h>
+#include <Lcd.hpp>
 
 /** ----------- PINS ----------- */
 // Buttons
@@ -52,6 +53,7 @@ const char buttonMap[BUTTON_COUNT] = {'1', '2', '3', '4', 'q', 'w', 'e', 'r', 'a
 RgbMatrix<DIMENSION> matrix = RgbMatrix<DIMENSION>();
 ShiftIn<REGISTER_COUNT> shift = ShiftIn<REGISTER_COUNT>();
 bool isInMenu = true;
+Lcd lcd(0x27, 20, 4); // set the LCD address to 0x27 for a 16 chars and 2 line display
 /** ----------- CONSTANS END ----------- */
 
 

@@ -27,6 +27,10 @@ static GameStruct games[GAMES] = {
 void setup() {
     Serial.begin(115200);
 
+    lcd.init();
+    lcd.startScreen();
+    delay(500);
+
     if (!debug) {
         // Button initialization
         shift.begin(
@@ -72,6 +76,10 @@ void setup() {
         Serial.println();
     }
 
+    lcd.clear();
+    lcd.setCursor(0, 1);
+    lcd.print(F("  Starting up ...   "));
+
     matrix.writeAllLow();
 
     // Print welcome message
@@ -79,10 +87,18 @@ void setup() {
         uint8_t color = random(0, 3);
         matrix.set(static_cast<Color>(color), i, HIGH);
         matrix.write(static_cast<Color>(color), false);
-        delay(500 * !debug);
+
+        lcd.setCursor(i + 2, 3);
+        lcd.print(F("#"));
+
+        delay(200);
     }
 
     matrix.writeAllLow();
+
+    lcd.gameSelect();
+    lcd.setCursor(0, gameIndex);
+    lcd.blink();
 
     // Set random seed
     randomSeed(analogRead(A0));
@@ -101,12 +117,14 @@ void loop() {
         // Menu
         if (isInMenu) {
             Serial.println("Do you want to play " + games[gameIndex].name + "? (1) Start, (2) Next");
+            lcd.setCursor(0, gameIndex);
             isInMenu = false;
         }
 
         // Mode Selection
         if (input == buttonMap[1] || shift.pressed(1)) {
             gameIndex = (gameIndex + 1) % GAMES;
+            lcd.setCursor(0, gameIndex);
             isInMenu = true;
         }
 
