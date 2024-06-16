@@ -17,21 +17,34 @@ class Player {
 
     Player(Color color) : color(color) {}
 
+    bool isActive = false;
+
     inline Color getColor() { return color; }
     inline int8_t getScore() { return score; }
+    inline int8_t getLives() { return lives; }
 
     void updateScore(int8_t value) {
-      score += value;
+      if (value == -1) {
+        lives--;
+      } 
+
+      if (value == -1 && score > 0 || value > 0) {
+        score += value;
+      }
+      
       Serial.println("Score of Player " + getPlayerColor(color) + ": " + String(score));
     }
 
     void reset() {
       Serial.println("Reset Player " + getPlayerColor(color));
       score = 0;
+      lives = 3;
+      isActive = false;
     }
 
   private:
     Color color;
+    int8_t lives = 3;
     int8_t score = 0;
 };
 

@@ -16,7 +16,7 @@ class Game {
   public:
     inline bool isActive() { return isCurrentlyActive; }
 
-    virtual void setup(GameMode mode, uint8_t highscoreAdress) {
+    virtual void setup(GameMode mode, uint8_t highscoreAdress, String name) {
           // reset states
           matrix.setAllLow();
 
@@ -25,6 +25,8 @@ class Game {
               players[i] = Player(static_cast<Color>(i));
           }
 
+          lcd.clear();
+          lcd.noBlink();
           // start animation
           for (uint8_t i = 0; i < DIMENSION; i++) {
             matrix.set(Color::BLUE, i, HIGH);
@@ -32,7 +34,35 @@ class Game {
             matrix.set(Color::BLUE, i + 8, HIGH);
             matrix.set(Color::BLUE, i + 12, HIGH);
             matrix.write(Color::BLUE, false);
-            delay(1000 * !debug);
+
+            lcd.setCursor(3, 0);
+            lcd.print(F("Loading ..."));
+            lcd.setCursor(3, 1);
+            lcd.print(name);
+
+            for (int j = (i * 5); j < ((i + 1) * 5); j++) {
+              lcd.dino(j - 2, 2);
+              lcd.setCursor(j - 3, 2);
+              lcd.print(F(" "));
+              lcd.setCursor(j - 3, 3);
+              lcd.print(F(" "));
+              if (j == 0 || j == 1) {
+                lcd.setCursor(j - 2, 2);
+                lcd.print(F(" "));
+                lcd.setCursor(j - 2, 3);
+                lcd.print(F(" "));
+                lcd.setCursor(j - 1, 2);
+                lcd.print(F(" "));
+                lcd.setCursor(j - 1, 3);
+                lcd.print(F(" "));
+              } else if (j == 19) {
+                lcd.setCursor(j + 1, 2);
+                lcd.print(F(" "));
+                lcd.setCursor(j + 1, 3);
+                lcd.print(F(" "));
+              }
+              delay(200);
+            }
           }
 
           // reset matrix
@@ -40,37 +70,42 @@ class Game {
 
           isCurrentlyActive = true;
           this->highscoreAdress = highscoreAdress;
+          this->mode = mode;
     }
 
     virtual void loop() {
-      lcd.multiPlayerScreen();
       // update button list
       double time = update();
 
       // write current state to matrix
-      if (changed)
-      {
+      if (changed) {
+        if (mode == GameMode::MULTIPLAYER && highscoreAdress == 0) {
+          lcd.multiPlayerScreen(players[0].getScore(), players[1].getScore(), players[0].getLives(), players[1].getLives());
+        } else {
+          uint8_t activePlayer = players[0].isActive ? 0 : 1;
+          lcd.singlePlayerScreen(activePlayer, players[activePlayer].getScore(), players[activePlayer].getLives());
+        }
         matrix.writeAll(true);
         changed = false;
-        }
+      }
 
-        double start = millis();
+      double start = millis();
 
-        // check if time is over
-        while (Game::isActive() && !changed && (time - (millis() - start)) > 0) {
-            // check if button is pressed
-            if (!debug && shift.update()) {
-                checkReset();
-                onPress();
-            } else {
-                // debug mode
-                if (Serial.available() > 0) {
-                    char input = Serial.read();
-                    checkReset(input);
-                    onPress(input);
-                }
-            }
-        }
+      // check if time is over
+      while (Game::isActive() && !changed && (time - (millis() - start)) > 0) {
+          // check if button is pressed
+          if (!debug && shift.update()) {
+              checkReset();
+              onPress();
+          } else {
+              // debug mode
+              if (Serial.available() > 0) {
+                  char input = Serial.read();
+                  checkReset(input);
+                  onPress(input);
+              }
+          }
+      }
     }
 
   protected:
@@ -125,6 +160,7 @@ class Game {
         Serial.print(F("New highscore for Game "));
         highscoreAdress == 0 ? Serial.print(F("WhackAMole")) : Serial.print(F("Remember"));
         Serial.println(": " + String(players[bestPlayer].getScore()));
+        lcd.highsoreScreen(players[bestPlayer].getScore());
       }
 
       // reset players
@@ -136,6 +172,8 @@ class Game {
       for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
           activeButtons[i].remove();
       }
+
+      lcd.resetScreen(bestPlayer, players[bestPlayer].getScore());
 
       isCurrentlyActive = false;
       level = 1;
@@ -150,6 +188,7 @@ class Game {
   private:
     bool isCurrentlyActive = false;
     uint8_t highscoreAdress = 0;
+    GameMode mode;
 
     virtual void onPress(char input = '%') {}
 
@@ -175,7 +214,7 @@ class Game {
           // update score
           players[activeButtons[i].getPlayer()].updateScore(-1);
           // Game lost
-          if (players[activeButtons[i].getPlayer()].getScore() < 0) {
+          if (players[activeButtons[i].getPlayer()].getLives() == 0) {
             Serial.println("Player " + getPlayerColor(players[activeButtons[i].getPlayer()].getColor()) + " lost!");
             reset();
             // since activeButtons get cleared within reset break the loop here

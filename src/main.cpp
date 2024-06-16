@@ -131,7 +131,7 @@ void loop() {
         // Start Game
         if (input == buttonMap[0] || shift.pressed(0)) {
             Serial.println("Starting " + games[gameIndex].name + "...");
-            games[gameIndex].game->setup(games[gameIndex].mode, gameIndex > 1 ? 1 : 0);
+            games[gameIndex].game->setup(games[gameIndex].mode, gameIndex > 1 ? 1 : 0, gameIndex > 1 ? "Remember" : "Whack-A-Mole");
         }
 
         // reset input

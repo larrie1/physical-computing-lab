@@ -8,9 +8,6 @@
 #define Remember_hpp
 
 #include <Game.hpp>
-#include <ShiftIn.h>
-#include <RgbMatrix.h>
-#include <Globals.hpp>
 
 enum class RememberState {
     SHOWING,
@@ -25,13 +22,14 @@ class Remember : public Game {
         int8_t sequence[50];
         uint8_t index = 0;
 
-        void setup(GameMode mode, uint8_t highscoreAdress) override {
+        void setup(GameMode mode, uint8_t highscoreAdress, String name) override {
           // call super method
-          Game::setup(mode, highscoreAdress);
+          Game::setup(mode, highscoreAdress, name);
           this->mode = mode;
           index = 0;
           player = 0;
           state = RememberState::SHOWING;
+          Game::players[0].isActive = true;
 
           // set all sequence values to -1
           for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
@@ -49,6 +47,7 @@ class Remember : public Game {
         }
 
         void show() {
+            lcd.showScreen(player);
             for (int i = 0; i < level; i++) {
                 uint8_t index = random(0, BUTTON_COUNT);
                 // show button for 1 second
@@ -60,8 +59,8 @@ class Remember : public Game {
                 // remove button after 1 second
                 matrix.setAllLow();
             }
+            changed = true;
             matrix.writeAll();
-            changed = false;
             state = RememberState::REMEMBER;
         }
 
@@ -80,7 +79,8 @@ class Remember : public Game {
                         index++;
                     } else {
                         Game::players[player].updateScore(-1);
-                        if (Game::players[player].getScore() < 0) {
+                        changed = true;
+                        if (Game::players[player].getLives() == 0) {
                             Serial.println("Player " + getPlayerColor(players[player].getColor()) + " lost!");
                             Game::reset();
                         }
@@ -99,12 +99,16 @@ class Remember : public Game {
                 index = 0;
                 state = RememberState::SHOWING;
                 changed = true;
+
                 // next player
                 if (mode == GameMode::MULTIPLAYER) {
                     player = player == 0 ? 1 : 0;
+                    Game::players[0].isActive = player == 0;
+                    Game::players[1].isActive = player == 1;
                 }
+
                 // next level if all player did their move
-                if (player == 0) {
+                if (Game::players[0].isActive) {
                     level++;
                 }
             }
