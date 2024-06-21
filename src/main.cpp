@@ -83,7 +83,7 @@ void setup() {
     matrix.writeAllLow();
 
     // Print welcome message
-    for (int i = 0; i < BUTTON_COUNT; i++) {
+    for (int i = 0; i < 2; i++) {
         uint8_t color = random(0, 3);
         matrix.set(static_cast<Color>(color), i, HIGH);
         matrix.write(static_cast<Color>(color), false);

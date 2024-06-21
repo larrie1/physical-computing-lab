@@ -82,7 +82,7 @@ class Game {
         if (mode == GameMode::MULTIPLAYER && highscoreAdress == 0) {
           lcd.multiPlayerScreen(players[0].getScore(), players[1].getScore(), players[0].getLives(), players[1].getLives());
         } else {
-          uint8_t activePlayer = players[0].isActive ? 0 : 1;
+          uint8_t activePlayer = !players[0].isActive && !players[1].isActive ? 0 : players[0].isActive ? 0 : 1;
           lcd.singlePlayerScreen(activePlayer, players[activePlayer].getScore(), players[activePlayer].getLives());
         }
         matrix.writeAll(true);
