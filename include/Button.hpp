@@ -10,24 +10,53 @@
 #include <Stopwatch.h>
 #include <Arduino.h>
 
+enum class Color {
+  RED,
+  GREEN,
+  BROWN,
+  NONE
+};
+
 class Button {
   public:
         // Default constructor
-        Button() : index(-1), player(-1), time(0) {}
+        Button() : value(Color::NONE), pin(0), redPin(0), greenPin(0) {}
 
-        Button(int8_t index, int8_t player, double time) : index(index), player(player), time(time) {
-          // start watch on creation
-          watch.start();
-        }
+        Button(int8_t pin, int8_t redPin, int8_t greenPin) : value(Color::NONE), pin(pin), redPin(redPin), greenPin(greenPin) {}
 
-        inline int getIndex() {return index;}
-        inline int getPlayer() {return player;}
+        inline Color getValue() { return value; }
+        inline bool pressed() { return digitalRead(pin); }
+        inline void startWatch() { watch.start(); }
+        inline void stopWatch() { watch.stop(); }
+        inline int getPlayer() { value == Color::RED ? 0 : value == Color::GREEN ? 1 : -1; }
 
-        void remove() {
-            // stop watch before removing button
-            watch.stop();
-            index = -1;
-            player = -1;
+        void setValue(Color value) {
+          this->value = value;
+          switch (this->value) {
+            case Color::RED:
+              digitalWrite(redPin, LOW);
+              digitalWrite(greenPin, HIGH);
+              watch.start();
+              break;
+
+            case Color::GREEN:
+              digitalWrite(greenPin, LOW);
+              digitalWrite(redPin, HIGH);
+              watch.start();
+              break;
+            
+            case Color::BROWN:
+              digitalWrite(redPin, LOW);
+              digitalWrite(greenPin, LOW);
+              watch.start();
+              break;
+
+            default:
+              digitalWrite(redPin, HIGH);
+              digitalWrite(greenPin, HIGH);
+              watch.stop();
+              break;
+          }
         }
 
         double getRemainingTime() {
@@ -40,9 +69,11 @@ class Button {
         }
 
   private:
-        int8_t index;
-        int8_t player;
-        double time;
+        Color value;
+        int8_t pin;
+        int8_t redPin;
+        int8_t greenPin;
+        double time = 3000;
         Stopwatch watch = Stopwatch();
 };
 

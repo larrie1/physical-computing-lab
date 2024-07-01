@@ -53,6 +53,7 @@ class Lcd : public LiquidCrystal_I2C {
     }
 
     void gameSelect() {
+        blink();
         clear();
         setCursor(0, 0);
         print(F(" Whack-A-Mole 1     "));

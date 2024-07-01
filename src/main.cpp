@@ -27,43 +27,10 @@ static GameStruct games[GAMES] = {
 void setup() {
     Serial.begin(115200);
 
-    lcd.init();
-    lcd.startScreen();
-    delay(500);
+    // set pins and button array
+    assignPins();
 
-    if (!debug) {
-        // Button initialization
-        shift.begin(
-            BUTTON_LOAD_PIN, 
-            BUTTON_CLOCK_ENABLE_PIN, 
-            BUTTON_DATA_PIN, 
-            BUTTON_CLOCK_PIN
-        );
-
-        // Matrix LEDs initialization
-        matrix.begin(
-            RED_LATCH_PIN,
-            RED_DATA_PIN,
-            GREEN_LATCH_PIN,
-            GREEN_DATA_PIN,
-            BLUE_LATCH_PIN,
-            BLUE_DATA_PIN,
-            CLOCK_PIN
-        );
-
-        Serial.println();
-        Serial.println(F("#################################################"));
-        Serial.println(F("#           Matrix Game Console                 #"));
-        Serial.println(F("#          Created by GridGurus                 #"));
-        Serial.println(F("#                                               #"));      
-        Serial.println(F("# Available Games:                              #"));
-        Serial.println(F("#       - Whack-A-Mole Singleplayer             #"));
-        Serial.println(F("#       - Whack-A-Mole Multiplayer              #"));
-        Serial.println(F("#       - Remember Singleplayer                 #"));
-        Serial.println(F("#       - Remember Multiplayer                  #"));
-        Serial.println(F("#################################################"));
-        Serial.println();
-    } else {
+    if (debug) {
         Serial.println();
         Serial.println(F("#################################################"));
         Serial.println(F("# Starting in debug mode                        #"));
@@ -74,31 +41,32 @@ void setup() {
         Serial.println(F("#       y x c v                                 #"));
         Serial.println(F("#################################################"));
         Serial.println();
+    } else {
+        // initialize Lcd Display
+        lcd.init();
+        lcd.startScreen();
+        delay(500);
+
+        lcd.clear();
+        lcd.setCursor(0, 1);
+        lcd.print(F("  Starting up ...   "));
+
+        // // Print welcome message
+        for (int i = 0; i < BUTTON_COUNT; i++) {
+            setValueAt(i, static_cast<Color>(random(0, 2)));
+
+            lcd.setCursor(i + 2, 3);
+            lcd.print(F("#"));
+
+            delay(200);
+        }
+
+        setAllLow();
+
+        lcd.gameSelect();
+        lcd.setCursor(0, gameIndex);
+        lcd.blink();
     }
-
-    lcd.clear();
-    lcd.setCursor(0, 1);
-    lcd.print(F("  Starting up ...   "));
-
-    matrix.writeAllLow();
-
-    // Print welcome message
-    for (int i = 0; i < 2; i++) {
-        uint8_t color = random(0, 3);
-        matrix.set(static_cast<Color>(color), i, HIGH);
-        matrix.write(static_cast<Color>(color), false);
-
-        lcd.setCursor(i + 2, 3);
-        lcd.print(F("#"));
-
-        delay(200);
-    }
-
-    matrix.writeAllLow();
-
-    lcd.gameSelect();
-    lcd.setCursor(0, gameIndex);
-    lcd.blink();
 
     // Set random seed
     randomSeed(analogRead(A0));
@@ -117,19 +85,19 @@ void loop() {
         // Menu
         if (isInMenu) {
             Serial.println("Do you want to play " + games[gameIndex].name + "? (1) Start, (2) Next");
-            lcd.setCursor(0, gameIndex);
+            // lcd.setCursor(0, gameIndex);
             isInMenu = false;
         }
 
         // Mode Selection
-        if (input == buttonMap[1] || shift.pressed(1)) {
+        if (input == buttonMap[1] || (!debug && buttons[0].pressed())) {
             gameIndex = (gameIndex + 1) % GAMES;
-            lcd.setCursor(0, gameIndex);
+            // lcd.setCursor(0, gameIndex);
             isInMenu = true;
         }
 
         // Start Game
-        if (input == buttonMap[0] || shift.pressed(0)) {
+        if (input == buttonMap[0] || (!debug && buttons[1].pressed())) {
             Serial.println("Starting " + games[gameIndex].name + "...");
             games[gameIndex].game->setup(games[gameIndex].mode, gameIndex > 1 ? 1 : 0, gameIndex > 1 ? "Remember" : "Whack-A-Mole");
         }

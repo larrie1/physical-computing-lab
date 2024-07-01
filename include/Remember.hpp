@@ -51,16 +51,14 @@ class Remember : public Game {
             for (int i = 0; i < level; i++) {
                 uint8_t index = random(0, BUTTON_COUNT);
                 // show button for 1 second
-                matrix.set(Color::BLUE, index, HIGH);
-                matrix.write(Color::BLUE, true);
+                setValueAt(index, Color::BROWN);
                 // add button to sequence
                 sequence[i] = index;
                 delay(1000);
                 // remove button after 1 second
-                matrix.setAllLow();
+                setValueAt(index, Color::NONE);
             }
             changed = true;
-            matrix.writeAll();
             state = RememberState::REMEMBER;
         }
 
@@ -69,11 +67,11 @@ class Remember : public Game {
             // iterate over all active buttons
             for (uint8_t button = 0; button < BUTTON_COUNT; button++) {
                 // take button if it is pressed
-                if (shift.pressed(button) || input == buttonMap[button]) {
+                if (buttons[button].pressed() || input == buttonMap[button]) {
                     // check if button is the correct in sequence
                     if (button == sequence[index]) {
                         correct = true;
-                        matrix.set(Color::GREEN, button, HIGH);
+                        buttons[button].setValue(Color::GREEN);
                         // remove pressed button
                         sequence[index] = -1;
                         index++;
@@ -84,11 +82,10 @@ class Remember : public Game {
                             Serial.println("Player " + getPlayerColor(players[player].getColor()) + " lost!");
                             Game::reset();
                         }
-                        matrix.set(Color::RED, button, HIGH);
+                        buttons[button].setValue(Color::RED);
                     }
-                    matrix.write(correct ? Color::GREEN : Color::RED, false);
                     delay(500);
-                    matrix.setAllLow();
+                    setAllLow();
                     break;
                 }
             }

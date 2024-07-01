@@ -20,7 +20,7 @@ private:
     int bitOrder;
 
 public:
-    _ShiftOut() : state(0), dataWidth(chipCount * 8), bitOrder(MSBFIRST) {}
+    _ShiftOut() : state(0), dataWidth(chipCount * 8), bitOrder(LSBFIRST) {}
 
 	ShiftType state;
 
@@ -53,6 +53,14 @@ public:
         } else {
             state = bitClear(state, index);
         }
+		printBinary(state);
+	}
+
+	void printBinary(uint16_t value) {
+		for (int i = 15; i >= 0; i--) {
+			Serial.print((value >> i) & 1);
+		}
+		Serial.println();
 	}
 
 	inline boolean get(int index) { return bitRead(state, index); }
