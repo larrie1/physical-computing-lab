@@ -14,13 +14,13 @@
 
 /** ----------- PINS ----------- */
 // Buttons
-#define FIRST_BUTTON_PIN 1
+#define FIRST_BUTTON_PIN 34
 
 // Red LEDs
-#define FIRST_RED_PIN 17
+#define FIRST_RED_PIN 0
 
 // Green LEDs
-#define FIRST_GREEN_PIN 34
+#define FIRST_GREEN_PIN 16
 /** ----------- PINS END ----------- */
 
 
@@ -32,7 +32,7 @@ const int MAX_PLAYER = 2;
 const int GAMES = 4; // WhackAMole Singleplayer, WhackAMole Multiplayer, Remember Singleplayer, Remember Multiplayer
 const int DIMENSION = 4;
 const int BUTTON_COUNT = 16;
-const bool debug = true;
+const bool debug = false;
 const char buttonMap[BUTTON_COUNT] = {'1', '2', '3', '4', 'q', 'w', 'e', 'r', 'a', 's', 'd', 'f', 'y', 'x', 'c', 'v'};
 
 // non constants
@@ -66,16 +66,32 @@ String getPlayerColor(Color color) {
 }
 
 void assignPins() {
+    int8_t buttonIndex = 0;
     if (!debug) {
-        for (int i = 0; i < BUTTON_COUNT; i++) {
-        pinMode(FIRST_BUTTON_PIN + i, INPUT_PULLUP);
-        pinMode(FIRST_RED_PIN + i, OUTPUT);
-        pinMode(FIRST_GREEN_PIN + i, OUTPUT);
-        buttons[i] = Button(FIRST_BUTTON_PIN + i, FIRST_RED_PIN + i, FIRST_GREEN_PIN + i);
-        digitalWrite(FIRST_RED_PIN + i, HIGH);
-        digitalWrite(FIRST_GREEN_PIN + i, HIGH);
+        for (int i = 2; i < (BUTTON_COUNT * 3) + 3; i += 3) {
+            if (i == 20) continue;
+
+            // Button
+            int8_t buttonPin = i;
+            pinMode(buttonPin, INPUT_PULLUP);
+
+            // Green LED
+            int8_t greenPin = i + 1;
+            pinMode(i + 1, OUTPUT);
+            digitalWrite(i + 1, HIGH);
+
+            // Red LED
+            int8_t redPin = i + 2;
+            pinMode(redPin, OUTPUT);
+            digitalWrite(redPin, HIGH);
+
+            // assign new Button Object
+            buttons[buttonIndex] = Button(buttonPin, redPin, greenPin);
+            buttonIndex++;
         }
-    } else {
+    }
+    else
+    {
         pinMode(A5, OUTPUT);
         pinMode(A4, OUTPUT);
         buttons[0] = Button(0, A4, A5);
@@ -85,8 +101,8 @@ void assignPins() {
 }
 
 void setAllLow() {
-    for (Button button : buttons) {
-        button.setValue(Color::NONE);
+    for (int i = 0; i < BUTTON_COUNT; i++) {
+        buttons[i].setValue(Color::NONE);
     }
 }
 

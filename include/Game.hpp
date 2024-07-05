@@ -72,6 +72,7 @@ class Game {
           isCurrentlyActive = true;
           this->highscoreAdress = highscoreAdress;
           this->mode = mode;
+          this->changed = true;
     }
 
     virtual void loop() {
@@ -110,11 +111,10 @@ class Game {
 
   protected:
     Player players[MAX_PLAYER];
-    uint8_t level = 1;
     bool changed = false;
 
     uint8_t addRandomButton(int8_t player, long time = BUTTON_TIME) {
-      uint8_t index = 0;
+      uint8_t index = rand() % BUTTON_COUNT - 1;
       while (buttons[index].getValue() != Color::NONE) {
         // find empty button
         index = rand() % (BUTTON_COUNT - 1);
@@ -164,7 +164,6 @@ class Game {
       }
 
       isCurrentlyActive = false;
-      level = 1;
       setAllLow();
       changed = false;
       isInMenu = true;
@@ -187,9 +186,9 @@ class Game {
 
     double update() {
       double leastRemainingTime = BUTTON_TIME;
-      for (Button button : buttons) {
-        int8_t player = button.getPlayer();
-        double remainingTime = button.getRemainingTime();
+      for (int i = 0; i < BUTTON_COUNT; i++) {
+        int8_t player = buttons[i].getPlayer();
+        double remainingTime = buttons[i].getRemainingTime();
         if (remainingTime < leastRemainingTime) {
           leastRemainingTime = remainingTime;
         }
@@ -205,7 +204,7 @@ class Game {
             break;
           }
           // reset button
-          button.setValue(Color::NONE);
+          buttons[i].setValue(Color::NONE);
           // add new button
           addRandomButton(player);
         }

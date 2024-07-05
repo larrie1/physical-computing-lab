@@ -48,7 +48,7 @@ class Remember : public Game {
 
         void show() {
             lcd.showScreen(player);
-            for (int i = 0; i < level; i++) {
+            for (int i = 0; i < players[player].getLevel(); i++) {
                 uint8_t index = random(0, BUTTON_COUNT);
                 // show button for 1 second
                 setValueAt(index, Color::BROWN);
@@ -63,14 +63,13 @@ class Remember : public Game {
         }
 
         void onPress(char input = '%') override {
-            bool correct = false;
             // iterate over all active buttons
             for (uint8_t button = 0; button < BUTTON_COUNT; button++) {
+                if (button == 12) continue;
                 // take button if it is pressed
                 if (buttons[button].pressed() || input == buttonMap[button]) {
                     // check if button is the correct in sequence
                     if (button == sequence[index]) {
-                        correct = true;
                         buttons[button].setValue(Color::GREEN);
                         // remove pressed button
                         sequence[index] = -1;
@@ -78,11 +77,11 @@ class Remember : public Game {
                     } else {
                         Game::players[player].updateScore(-1);
                         changed = true;
+                        buttons[button].setValue(Color::RED);
                         if (Game::players[player].getLives() == 0) {
                             Serial.println("Player " + getPlayerColor(players[player].getColor()) + " lost!");
                             Game::reset();
                         }
-                        buttons[button].setValue(Color::RED);
                     }
                     delay(500);
                     setAllLow();
@@ -91,22 +90,20 @@ class Remember : public Game {
             }
 
             // check if all buttons were pressed
-            if (sequence[level - 1] == -1) {
+            if (sequence[Game::players[player].getLevel() - 1] == -1) {
                 Game::players[player].updateScore(1);
                 index = 0;
                 state = RememberState::SHOWING;
                 changed = true;
+
+                // next level 
+                Game::players[player].updateLevel(1);
 
                 // next player
                 if (mode == GameMode::MULTIPLAYER) {
                     player = player == 0 ? 1 : 0;
                     Game::players[0].isActive = player == 0;
                     Game::players[1].isActive = player == 1;
-                }
-
-                // next level if all player did their move
-                if (Game::players[0].isActive) {
-                    level++;
                 }
             }
         }

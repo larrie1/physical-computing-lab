@@ -11,10 +11,10 @@
 #include <Arduino.h>
 
 enum class Color {
-  RED,
-  GREEN,
-  BROWN,
-  NONE
+  RED = 0,
+  GREEN = 1,
+  BROWN = 2,
+  NONE = 3
 };
 
 class Button {
@@ -25,10 +25,10 @@ class Button {
         Button(int8_t pin, int8_t redPin, int8_t greenPin) : value(Color::NONE), pin(pin), redPin(redPin), greenPin(greenPin) {}
 
         inline Color getValue() { return value; }
-        inline bool pressed() { return digitalRead(pin); }
         inline void startWatch() { watch.start(); }
         inline void stopWatch() { watch.stop(); }
-        inline int getPlayer() { value == Color::RED ? 0 : value == Color::GREEN ? 1 : -1; }
+        inline int getPlayer() { return static_cast<int>(value); }
+        inline bool pressed() { return digitalRead(pin) == HIGH; }
 
         void setValue(Color value) {
           this->value = value;
@@ -69,12 +69,12 @@ class Button {
         }
 
   private:
-        Color value;
-        int8_t pin;
-        int8_t redPin;
-        int8_t greenPin;
-        double time = 3000;
-        Stopwatch watch = Stopwatch();
+    Color value;
+    int8_t pin;
+    int8_t redPin;
+    int8_t greenPin;
+    double time = 3000;
+    Stopwatch watch = Stopwatch();
 };
 
 #endif

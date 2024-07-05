@@ -18,23 +18,26 @@ class WhackAMole : public Game {
           Game::setup(mode, highscoreAdress, name);
 
           for (uint8_t player = 0; player < static_cast<uint8_t>(mode); player++) {
+            Serial.println("Player " + String(player) + " is active.");
             // add random button to each player
             Game::addRandomButton(player);
           }
         }
 
         void onPress(char input = '%') override {
-          for (Button button : buttons) {
-            int8_t player = button.getPlayer();
-            if (button.pressed()) {
+          for (int i = 0; i < BUTTON_COUNT; i++) {
+            int8_t player = buttons[i].getPlayer();
+            if (buttons[i].pressed() && buttons[i].getValue() != Color::NONE) {
+              Serial.println("Player " + String(player) + " pressed button " + String(i) + " with value " + String(static_cast<int>(buttons[i].getValue())) + ".");
               // remove pressed button
-              button.setValue(Color::NONE);
+              buttons[i].setValue(Color::NONE);
               // update player's score
               Game::players[player].updateScore(1);
               // check if player reached next level
               if (Game::players[player].getScore() % 10 == 0) {
-                level++;
-                // add another button to each player
+                Game::players[player].updateLevel(1);
+                Serial.println("Next Level");
+                // add another button to player
                 Game::addRandomButton(player);
               }
               // add new button

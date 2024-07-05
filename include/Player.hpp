@@ -22,6 +22,8 @@ class Player {
     inline Color getColor() { return color; }
     inline int8_t getScore() { return score; }
     inline int8_t getLives() { return lives; }
+    inline int8_t getLevel() { return level; }
+    inline void updateLevel(int8_t value) { level += value; }
 
     void updateScore(int8_t value) {
       if (value == -1) {
@@ -39,11 +41,13 @@ class Player {
       Serial.println("Reset Player " + getPlayerColor(color));
       score = 0;
       lives = 3;
+      level = 1;
       isActive = false;
     }
 
   private:
     Color color;
+    int8_t level = 1;
     int8_t lives = 3;
     int8_t score = 0;
 };

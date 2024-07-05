@@ -51,7 +51,7 @@ void setup() {
         lcd.setCursor(0, 1);
         lcd.print(F("  Starting up ...   "));
 
-        // // Print welcome message
+        // Print welcome message
         for (int i = 0; i < BUTTON_COUNT; i++) {
             setValueAt(i, static_cast<Color>(random(0, 2)));
 
@@ -77,6 +77,9 @@ void loop() {
         // Keep game running
         games[gameIndex].game->loop();
     } else {
+        setValueAt(0, Color::GREEN);
+        setValueAt(1, Color::RED);
+
         // Read input
         if (debug && Serial.available() > 0) {
             input = Serial.read();
@@ -85,19 +88,20 @@ void loop() {
         // Menu
         if (isInMenu) {
             Serial.println("Do you want to play " + games[gameIndex].name + "? (1) Start, (2) Next");
-            // lcd.setCursor(0, gameIndex);
+            lcd.setCursor(0, gameIndex);
             isInMenu = false;
         }
 
         // Mode Selection
-        if (input == buttonMap[1] || (!debug && buttons[0].pressed())) {
+        if (input == buttonMap[1] || (!debug && buttons[1].pressed())) {
             gameIndex = (gameIndex + 1) % GAMES;
-            // lcd.setCursor(0, gameIndex);
+            lcd.setCursor(0, gameIndex);
             isInMenu = true;
+            delay(300);
         }
 
         // Start Game
-        if (input == buttonMap[0] || (!debug && buttons[1].pressed())) {
+        if (input == buttonMap[0] || (!debug && buttons[0].pressed())) {
             Serial.println("Starting " + games[gameIndex].name + "...");
             games[gameIndex].game->setup(games[gameIndex].mode, gameIndex > 1 ? 1 : 0, gameIndex > 1 ? "Remember" : "Whack-A-Mole");
         }
