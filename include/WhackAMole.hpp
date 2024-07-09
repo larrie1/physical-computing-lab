@@ -33,8 +33,8 @@ class WhackAMole : public Game {
               buttons[i].setValue(Color::NONE);
               // update player's score
               Game::players[player].updateScore(1);
-              // check if player reached next level
-              if (Game::players[player].getScore() % 10 == 0) {
+              // check if player reached next level, max 4 active Buttons
+              if (Game::players[player].getScore() % 10 == 0 && Game::players[player].getScore() <= 40) {
                 Game::players[player].updateLevel(1);
                 Serial.println("Next Level");
                 // add another button to player

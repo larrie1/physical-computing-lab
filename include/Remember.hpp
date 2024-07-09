@@ -65,7 +65,6 @@ class Remember : public Game {
         void onPress(char input = '%') override {
             // iterate over all active buttons
             for (uint8_t button = 0; button < BUTTON_COUNT; button++) {
-                if (button == 12) continue;
                 // take button if it is pressed
                 if (buttons[button].pressed() || input == buttonMap[button]) {
                     // check if button is the correct in sequence

@@ -114,10 +114,10 @@ class Game {
     bool changed = false;
 
     uint8_t addRandomButton(int8_t player, long time = BUTTON_TIME) {
-      uint8_t index = rand() % BUTTON_COUNT - 1;
+      uint8_t index = rand() % BUTTON_COUNT;
       while (buttons[index].getValue() != Color::NONE) {
         // find empty button
-        index = rand() % (BUTTON_COUNT - 1);
+        index = rand() % BUTTON_COUNT;
       }
       buttons[index].setValue(static_cast<Color>(player));
       changed = true;

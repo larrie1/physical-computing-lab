@@ -1,7 +1,0 @@
-{
-  "name": "ShiftIn",
-  "description": "ShiftIn is a library for handling the shifting in.",
-  "version": "1.0.0",
-  "platforms": "atmelavr, atmelsam, freescalekinetis, nordicnrf51, nxplpc, ststm32, teensy, espressif8266, espressif32, nordicnrf52",
-  "headers": "ShiftIn.h"
-}
